@@ -14,7 +14,6 @@
         'security/ir_rule.xml',
         'security/security.xml',
         'data/dealflow360_data.xml',
-        'views/menus.xml',
         'views/discount_rule_views.xml',
         'views/customer_tier_views.xml',
         'views/approval_rule_views.xml',
@@ -25,6 +24,9 @@
         'views/res_partner_views.xml',
         'views/sale_order_views.xml',
         'views/portal_templates.xml',
+        'wizard/negotiation_reject_wizard_views.xml',
+        'views/negotiation_views.xml',
+        'views/menus.xml',
     ],
     'assets': {
         'web.assets_backend': [

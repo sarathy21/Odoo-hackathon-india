@@ -49,6 +49,14 @@
               action="action_dealflow_deals"
               sequence="20"/>
 
+    <!-- Customer Negotiations Menu -->
+    <menuitem id="menu_dealflow360_negotiations"
+              name="Customer Negotiations"
+              parent="menu_dealflow360_root"
+              action="action_dealflow_negotiation"
+              groups="dealflow360.group_dealflow_manager"
+              sequence="25"/>
+
     <!-- Approvals Menu -->
     <menuitem id="menu_dealflow360_approvals"
               name="Approvals"

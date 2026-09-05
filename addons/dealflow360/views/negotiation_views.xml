@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Tree View -->
+    <record id="view_dealflow_negotiation_tree" model="ir.ui.view">
+        <field name="name">dealflow.negotiation.tree</field>
+        <field name="model">dealflow.negotiation</field>
+        <field name="arch" type="xml">
+            <list string="Customer Negotiations" decoration-info="state == 'submitted'" decoration-warning="state == 'under_review'" decoration-success="state == 'accepted'" decoration-danger="state == 'rejected'" decoration-muted="state == 'stale'">
+                <field name="name"/>
+                <field name="order_id"/>
+                <field name="partner_id"/>
+                <field name="requested_by"/>
+                <field name="requested_date"/>
+                <field name="state" widget="badge" decoration-info="state == 'submitted'" decoration-warning="state == 'under_review'" decoration-success="state == 'accepted'" decoration-danger="state == 'rejected'" decoration-muted="state in ('draft', 'cancelled', 'stale')"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_dealflow_negotiation_form" model="ir.ui.view">
+        <field name="name">dealflow.negotiation.form</field>
+        <field name="model">dealflow.negotiation</field>
+        <field name="arch" type="xml">
+            <form string="Customer Negotiation">
+                <header>
+                    <button name="action_accept" string="Accept Negotiation" type="object" class="oe_highlight btn-success" invisible="state not in ('submitted', 'under_review')"/>
+                    <button name="%(action_dealflow_negotiation_reject_wizard)d" string="Reject Negotiation" type="action" class="btn-danger" invisible="state not in ('submitted', 'under_review')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="submitted,under_review,accepted,rejected"/>
+                </header>
+                <sheet>
+                    <widget name="web_ribbon" title="Accepted" bg_color="text-bg-success" invisible="state != 'accepted'"/>
+                    <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger" invisible="state != 'rejected'"/>
+                    
+                    <div class="alert alert-warning" role="alert" invisible="state != 'stale'">
+                        <h4 class="alert-heading">Stale Negotiation</h4>
+                        <p>This negotiation was created against an earlier quotation revision and cannot be applied to the current quotation.</p>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="order_id"/>
+                            <field name="partner_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="requested_by"/>
+                            <field name="requested_date"/>
+                            <field name="processed_by" invisible="state not in ('accepted', 'rejected')"/>
+                            <field name="processed_date" invisible="state not in ('accepted', 'rejected')"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="reason" invisible="not reason"/>
+                        <field name="rejection_reason" invisible="state != 'rejected'"/>
+                        <field name="customer_note" invisible="not customer_note"/>
+                        <field name="sales_note"/>
+                    </group>
+                    <notebook>
+                        <page string="Requested Commercial Terms" name="requested_terms">
+                            <field name="line_ids">
+                                <list string="Lines" create="0" delete="0" edit="0" decoration-warning="change_type != False">
+                                    <field name="product_id"/>
+                                    <field name="current_quantity"/>
+                                    <field name="requested_quantity" class="fw-bold text-primary"/>
+                                    <field name="current_unit_price"/>
+                                    <field name="requested_unit_price" class="fw-bold text-primary"/>
+                                    <field name="current_discount"/>
+                                    <field name="requested_discount" class="fw-bold text-primary"/>
+                                    <field name="change_type" widget="badge"/>
+                                    <field name="customer_reason" optional="show"/>
+                                </list>
+                                <form>
+                                    <group>
+                                        <group string="Current Terms">
+                                            <field name="current_quantity"/>
+                                            <field name="current_unit_price"/>
+                                            <field name="current_discount"/>
+                                        </group>
+                                        <group string="Requested Terms">
+                                            <field name="requested_quantity" class="fw-bold text-primary"/>
+                                            <field name="requested_unit_price" class="fw-bold text-primary"/>
+                                            <field name="requested_discount" class="fw-bold text-primary"/>
+                                            <field name="change_type" widget="badge"/>
+                                        </group>
+                                    </group>
+                                    <group>
+                                        <field name="customer_reason"/>
+                                    </group>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="Internal Information" name="internal_info">
+                            <group>
+                                <field name="base_commercial_revision"/>
+                                <field name="applied_commercial_revision" invisible="not applied_commercial_revision"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_dealflow_negotiation" model="ir.actions.act_window">
+        <field name="name">Customer Negotiations</field>
+        <field name="res_model">dealflow.negotiation</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ['submitted', 'under_review', 'accepted', 'rejected', 'stale'])]</field>
+        <field name="context">{'search_default_state': 'submitted'}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No active customer negotiations found.
+            </p>
+            <p>
+                When a customer submits a commercial counter-offer via the portal, it will appear here for your review.
+            </p>
+        </field>
+    </record>
+</odoo>

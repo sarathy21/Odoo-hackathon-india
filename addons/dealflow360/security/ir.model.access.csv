@@ -27,3 +27,5 @@ access_dealflow_health_user,dealflow.deal.health.user,model_dealflow_deal_health
 access_dealflow_health_manager,dealflow.deal.health.manager,model_dealflow_deal_health,dealflow360.group_dealflow_manager,1,1,1,1
 access_dealflow_anomaly_user,dealflow.anomaly.user,model_dealflow_anomaly,base.group_user,1,0,1,0
 access_dealflow_anomaly_manager,dealflow.anomaly.manager,model_dealflow_anomaly,dealflow360.group_dealflow_manager,1,1,1,1
+access_dealflow_negotiation_reject_wizard_manager,dealflow.negotiation.reject.wizard.manager,model_dealflow_negotiation_reject_wizard,dealflow360.group_dealflow_manager,1,1,1,1
+access_dealflow_negotiation_reject_wizard_user,dealflow.negotiation.reject.wizard.user,model_dealflow_negotiation_reject_wizard,base.group_user,1,1,1,1
