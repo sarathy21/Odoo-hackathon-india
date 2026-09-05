@@ -1,0 +1,22 @@
+# Environment variables
+.env
+
+# Postgres Data
+.dbdata/
+odoo-data/
+
+# Python Cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Odoo Session/Filestore Data (if mapped locally)
+sessions/
+filestore/
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*~
