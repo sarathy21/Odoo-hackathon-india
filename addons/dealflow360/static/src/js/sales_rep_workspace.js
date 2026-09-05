@@ -11,6 +11,16 @@ export class DealFlowSalesRepWorkspace extends Component {
         this.action = useService("action");
         
         this.state = useState({
+            user: {
+                user_id: user.userId,
+                user_name: user.name || "Sales Representative",
+                user_email: "",
+                role_code: "sales_rep",
+                role_name: "Sales Representative",
+                can_manage: false,
+                is_admin: user.isAdmin,
+            },
+            isUserMenuOpen: false,
             data: {
                 kpis: {
                     my_quotations: 0,
@@ -36,6 +46,13 @@ export class DealFlowSalesRepWorkspace extends Component {
         this.state.isLoading = true;
         this.state.hasError = false;
         try {
+            // 1. Fetch current user identity & role
+            const userInfo = await this.orm.call("dealflow.dashboard", "get_current_user_info", []);
+            if (userInfo) {
+                this.state.user = userInfo;
+            }
+
+            // 2. Fetch workspace deals & KPIs
             const data = await this.orm.call("dealflow.dashboard", "get_sales_rep_workspace_data", []);
             if (data) {
                 this.state.data = data;
@@ -43,10 +60,23 @@ export class DealFlowSalesRepWorkspace extends Component {
         } catch (error) {
             console.error("Failed to load Sales Representative workspace data:", error);
             this.state.hasError = true;
-            this.state.errorMessage = "Unable to load Sales Representative workspace.";
+            this.state.errorMessage = error.data?.message || "Unable to load Sales Representative workspace.";
         } finally {
             this.state.isLoading = false;
         }
+    }
+
+    toggleUserDropdown() {
+        this.state.isUserMenuOpen = !this.state.isUserMenuOpen;
+    }
+
+    onLogout() {
+        window.location.href = "/web/session/logout";
+    }
+
+    openCommandCenter() {
+        this.state.isUserMenuOpen = false;
+        this.action.doAction("dealflow360.action_dealflow_command_center");
     }
 
     formatCurrency(value) {

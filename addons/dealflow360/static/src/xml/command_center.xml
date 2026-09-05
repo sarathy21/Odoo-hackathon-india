@@ -27,19 +27,80 @@
 
             <!-- Content -->
             <div t-else="" class="container-fluid">
-                <!-- Header Section -->
+                <!-- Header Section with User Identity & Role Controls -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <div class="d-flex justify-content-between align-items-center border-bottom pb-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-3 gap-3">
                             <div>
-                                <h1 class="text-primary mb-1 fw-bold">DealFlow360</h1>
-                                <h4 class="text-dark mb-1 fw-semibold">Intelligent Deal Operations</h4>
-                                <p class="text-muted mb-0">Monitor deal risk, approvals, pipeline and intelligent recommendations.</p>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <h1 class="text-primary mb-0 fw-bold">DealFlow360</h1>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1">
+                                        <i class="fa fa-shield me-1"></i><t t-esc="state.user ? state.user.role_name : 'Command Center'"/>
+                                    </span>
+                                </div>
+                                <h5 class="text-dark mb-1 fw-semibold">Intelligent Deal Operations &amp; Governance</h5>
+                                <p class="text-muted mb-0 small">Monitor pipeline health, discount governance, risk scores and pending approvals.</p>
                             </div>
-                            <div>
-                                <button class="btn btn-light border shadow-sm btn-sm" t-on-click="loadData" title="Refresh Dashboard">
-                                    <i class="fa fa-refresh me-1 text-primary"></i> Refresh
+
+                            <div class="d-flex align-items-center gap-2">
+                                <!-- Switch to Sales Workspace -->
+                                <button class="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center gap-1"
+                                        t-on-click="openSalesWorkspace"
+                                        title="Switch to Sales Representative Workspace">
+                                    <i class="fa fa-exchange"></i>
+                                    <span class="d-none d-sm-inline">Sales Workspace</span>
                                 </button>
+
+                                <!-- Refresh Button -->
+                                <button class="btn btn-light border shadow-sm btn-sm" t-on-click="loadData" title="Refresh Dashboard">
+                                    <i class="fa fa-refresh text-primary"></i>
+                                </button>
+
+                                <!-- User Profile Menu -->
+                                <div class="dropdown position-relative">
+                                    <button class="btn btn-light border shadow-sm btn-sm d-flex align-items-center gap-2 px-3 py-1"
+                                            type="button"
+                                            t-on-click="toggleUserDropdown"
+                                            aria-expanded="false">
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 13px;">
+                                            <t t-esc="(state.user and state.user.user_name) ? state.user.user_name.charAt(0).toUpperCase() : 'A'"/>
+                                        </div>
+                                        <div class="text-start d-none d-md-block lh-1">
+                                            <div class="fw-semibold text-dark small"><t t-esc="state.user ? state.user.user_name : 'User'"/></div>
+                                            <div class="text-muted" style="font-size: 10px;"><t t-esc="state.user ? state.user.role_name : 'Manager'"/></div>
+                                        </div>
+                                        <i class="fa fa-chevron-down text-muted" style="font-size: 10px;"></i>
+                                    </button>
+
+                                    <!-- Dropdown Menu -->
+                                    <div t-if="state.isUserMenuOpen"
+                                         class="dropdown-menu dropdown-menu-end show shadow border-0 mt-2 p-2 position-absolute"
+                                         style="right: 0; min-width: 240px; z-index: 1050;">
+                                        <div class="px-3 py-2 border-bottom mb-2">
+                                            <div class="fw-bold text-dark"><t t-esc="state.user ? state.user.user_name : 'Administrator'"/></div>
+                                            <div class="text-muted small"><t t-esc="state.user ? (state.user.user_email || state.user.user_login) : ''"/></div>
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle mt-1">
+                                                <i class="fa fa-id-badge me-1"></i><t t-esc="state.user ? state.user.role_name : 'Manager'"/>
+                                            </span>
+                                        </div>
+
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded text-dark" href="#" t-on-click.prevent="openSalesWorkspace">
+                                            <i class="fa fa-laptop text-primary" style="width: 18px;"></i> Sales Workspace
+                                        </a>
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded text-dark" href="#" t-on-click.prevent="openPendingApprovals">
+                                            <i class="fa fa-check-square-o text-warning" style="width: 18px;"></i> Pending Approvals
+                                        </a>
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded text-dark" href="#" t-on-click.prevent="openConfigDiscountRules">
+                                            <i class="fa fa-sliders text-info" style="width: 18px;"></i> Discount Rules
+                                        </a>
+
+                                        <div class="dropdown-divider my-2"></div>
+
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded text-danger fw-semibold" href="#" t-on-click.prevent="onLogout">
+                                            <i class="fa fa-sign-out text-danger" style="width: 18px;"></i> Log Out
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

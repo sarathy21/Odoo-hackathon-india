@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- DealFlow360 1-Click Role Login Selector -->
+    <template id="dealflow360_login_role_selector" inherit_id="web.login">
+        <xpath expr="//div[@id='oe_structure_login_top']" position="after">
+            <div class="dealflow-role-card mb-3 p-3 bg-light rounded-3 border shadow-sm">
+                <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+                    <span class="small fw-bold text-uppercase text-primary">
+                        <i class="fa fa-users me-1"></i> Quick Role Login
+                    </span>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size: 10px;">DealFlow360 Demo</span>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-white border btn-sm w-100 text-start p-2 shadow-sm h-100" onclick="dealflowQuickFill('admin', 'admin')">
+                            <div class="fw-bold text-dark small"><i class="fa fa-shield text-purple me-1"></i> Admin</div>
+                            <div class="text-muted" style="font-size: 10px;">admin / admin</div>
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="button" class="btn btn-white border btn-sm w-100 text-start p-2 shadow-sm h-100" onclick="dealflowQuickFill('manager', 'manager')">
+                            <div class="fw-bold text-dark small"><i class="fa fa-briefcase text-primary me-1"></i> Sales Manager</div>
+                            <div class="text-muted" style="font-size: 10px;">manager / manager</div>
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="button" class="btn btn-white border btn-sm w-100 text-start p-2 shadow-sm h-100" onclick="dealflowQuickFill('salesrep', 'salesrep')">
+                            <div class="fw-bold text-dark small"><i class="fa fa-user text-success me-1"></i> Sales Representative</div>
+                            <div class="text-muted" style="font-size: 10px;">salesrep / salesrep</div>
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="button" class="btn btn-white border btn-sm w-100 text-start p-2 shadow-sm h-100" onclick="dealflowQuickFill('customer', 'customer')">
+                            <div class="fw-bold text-dark small"><i class="fa fa-handshake-o text-info me-1"></i> Customer</div>
+                            <div class="text-muted" style="font-size: 10px;">customer / customer</div>
+                        </button>
+                    </div>
+                </div>
+                <script type="text/javascript">
+                    function dealflowQuickFill(username, password) {
+                        var userSwitch = document.querySelector('owl-component[name="web.user_switch"]');
+                        var form = document.querySelector('form.oe_login_form');
+                        if (userSwitch) {
+                            userSwitch.style.display = 'none';
+                        }
+                        if (form) {
+                            form.classList.remove('d-none');
+                            form.style.display = 'block';
+                            var loginInput = form.querySelector('input[name="login"]');
+                            var passInput = form.querySelector('input[name="password"]');
+                            if (loginInput &amp;&amp; passInput) {
+                                loginInput.value = username;
+                                passInput.value = password;
+                                form.submit();
+                                return;
+                            }
+                        }
+                        window.location.href = '/web/login?login=' + encodeURIComponent(username);
+                    }
+                </script>
+            </div>
+        </xpath>
+    </template>
+</odoo>

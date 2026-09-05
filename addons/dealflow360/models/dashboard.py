@@ -1,12 +1,65 @@
 # -*- coding: utf-8 -*-
 from odoo import models, api, fields
+from odoo.exceptions import AccessError
 
 class DealFlowDashboard(models.AbstractModel):
     _name = 'dealflow.dashboard'
     _description = 'DealFlow Dashboard Data Provider'
 
     @api.model
+    def get_current_user_info(self):
+        user = self.env.user
+        is_admin = user.has_group('base.group_system')
+        is_dealflow_manager = user.has_group('dealflow360.group_dealflow_manager')
+        is_sales_manager = user.has_group('sales_team.group_sale_manager')
+        is_sales_rep = user.has_group('sales_team.group_sale_salesman') or user.has_group('sales_team.group_sale_salesman_all_leads')
+        is_stock_manager = user.has_group('stock.group_stock_manager')
+        is_portal = user.has_group('base.group_portal')
+
+        if is_admin:
+            role_code = "admin"
+            role_name = "Administrator"
+            can_manage = True
+        elif is_dealflow_manager or is_sales_manager:
+            role_code = "manager"
+            role_name = "DealFlow Manager"
+            can_manage = True
+        elif is_stock_manager:
+            role_code = "warehouse_manager"
+            role_name = "Warehouse Manager"
+            can_manage = False
+        elif is_sales_rep:
+            role_code = "sales_rep"
+            role_name = "Sales Representative"
+            can_manage = False
+        elif is_portal:
+            role_code = "portal"
+            role_name = "Customer"
+            can_manage = False
+        else:
+            role_code = "user"
+            role_name = "Internal User"
+            can_manage = False
+
+        return {
+            'user_id': user.id,
+            'user_name': user.name,
+            'user_login': user.login,
+            'user_email': user.email or user.partner_id.email or '',
+            'role_code': role_code,
+            'role_name': role_name,
+            'can_manage': can_manage,
+            'is_admin': is_admin,
+            'is_sales_rep': is_sales_rep,
+            'is_portal': is_portal,
+            'default_action': 'dealflow360.action_dealflow_command_center' if can_manage else 'dealflow360.action_dealflow_sales_rep_workspace',
+        }
+
+    @api.model
     def get_dashboard_data(self):
+        if not (self.env.user.has_group('dealflow360.group_dealflow_manager') or self.env.user.has_group('base.group_system')):
+            raise AccessError("Access denied: You do not have permissions to access the DealFlow360 Command Center.")
+
         company_ids = self.env.companies.ids
         company_currency = self.env.company.currency_id
         currency_symbol = company_currency.symbol or ''
@@ -195,6 +248,9 @@ class DealFlowDashboard(models.AbstractModel):
 
     @api.model
     def get_sales_manager_data(self):
+        if not (self.env.user.has_group('dealflow360.group_dealflow_manager') or self.env.user.has_group('base.group_system')):
+            raise AccessError("Access denied: You do not have permissions to access the Sales Manager dashboard.")
+
         company_ids = self.env.companies.ids
         company_currency = self.env.company.currency_id
         currency_symbol = company_currency.symbol or ''

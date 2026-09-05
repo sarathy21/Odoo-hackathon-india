@@ -3,13 +3,25 @@
 import { Component, onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { user } from "@web/core/user";
 
 export class DealFlowCommandCenter extends Component {
     setup() {
         this.orm = useService("orm");
         this.action = useService("action");
+        this.notification = useService("notification");
         
         this.state = useState({
+            user: {
+                user_id: user.userId,
+                user_name: user.name || "Administrator",
+                user_email: "",
+                role_code: "admin",
+                role_name: "DealFlow Manager",
+                can_manage: true,
+                is_admin: user.isAdmin,
+            },
+            isUserMenuOpen: false,
             data: {
                 kpis: {
                     active_deals: 0,
@@ -37,6 +49,18 @@ export class DealFlowCommandCenter extends Component {
         this.state.isLoading = true;
         this.state.hasError = false;
         try {
+            // 1. Identify current user & role
+            const userInfo = await this.orm.call("dealflow.dashboard", "get_current_user_info", []);
+            if (userInfo) {
+                this.state.user = userInfo;
+                // Guard: If not manager/admin, route directly to their Sales Representative Workspace
+                if (!userInfo.can_manage && !userInfo.is_admin) {
+                    this.action.doAction("dealflow360.action_dealflow_sales_rep_workspace", { clear_breadcrumbs: true });
+                    return;
+                }
+            }
+
+            // 2. Fetch dashboard data
             const data = await this.orm.call("dealflow.dashboard", "get_dashboard_data", []);
             if (data) {
                 this.state.data = data;
@@ -44,10 +68,33 @@ export class DealFlowCommandCenter extends Component {
         } catch (error) {
             console.error("Failed to load DealFlow360 Command Center data:", error);
             this.state.hasError = true;
-            this.state.errorMessage = "Unable to load DealFlow360 dashboard.";
+            this.state.errorMessage = error.data?.message || "Unable to load DealFlow360 dashboard.";
         } finally {
             this.state.isLoading = false;
         }
+    }
+
+    toggleUserDropdown() {
+        this.state.isUserMenuOpen = !this.state.isUserMenuOpen;
+    }
+
+    onLogout() {
+        window.location.href = "/web/session/logout";
+    }
+
+    openSalesWorkspace() {
+        this.state.isUserMenuOpen = false;
+        this.action.doAction("dealflow360.action_dealflow_sales_rep_workspace");
+    }
+
+    openConfigDiscountRules() {
+        this.state.isUserMenuOpen = false;
+        this.action.doAction("dealflow360.action_dealflow_discount_rule");
+    }
+
+    openConfigCustomerTiers() {
+        this.state.isUserMenuOpen = false;
+        this.action.doAction("dealflow360.action_dealflow_customer_tier");
     }
 
     formatCurrency(value) {

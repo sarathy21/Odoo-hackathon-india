@@ -26,22 +26,88 @@
 
             <!-- Content -->
             <div t-else="" class="container-fluid">
-                <!-- Header Section -->
+                <!-- Header Section with User Identity & Role Controls -->
                 <div class="row mb-4">
                     <div class="col-12">
-                        <div class="d-flex justify-content-between align-items-center border-bottom pb-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-3 gap-3">
                             <div>
-                                <h1 class="text-primary mb-1 fw-bold">DealFlow360</h1>
-                                <h4 class="text-dark mb-1 fw-semibold">Sales Representative Workspace</h4>
-                                <p class="text-muted mb-0">Create, manage and govern your customer deals.</p>
+                                <div class="d-flex align-items-center gap-2 mb-1">
+                                    <h1 class="text-primary mb-0 fw-bold">DealFlow360</h1>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                                        <i class="fa fa-user me-1"></i><t t-esc="state.user ? state.user.role_name : 'Sales Representative'"/>
+                                    </span>
+                                </div>
+                                <h5 class="text-dark mb-1 fw-semibold">Sales Representative Workspace</h5>
+                                <p class="text-muted mb-0 small">Create, manage, and govern deals with automated risk evaluation and recommendations.</p>
                             </div>
-                            <div>
-                                <button class="btn btn-primary shadow-sm" t-on-click="createQuotation">
-                                    <i class="fa fa-plus me-1"></i> Create Quotation
+
+                            <div class="d-flex align-items-center gap-2">
+                                <!-- Create Quotation -->
+                                <button class="btn btn-primary shadow-sm btn-sm d-flex align-items-center gap-1" t-on-click="createQuotation">
+                                    <i class="fa fa-plus"></i>
+                                    <span>Create Quotation</span>
                                 </button>
-                                <button class="btn btn-light border shadow-sm ms-2" t-on-click="loadData" title="Refresh Workspace">
+
+                                <!-- Switch to Command Center (if authorized) -->
+                                <t t-if="state.user and (state.user.can_manage or state.user.is_admin)">
+                                    <button class="btn btn-outline-primary btn-sm shadow-sm d-flex align-items-center gap-1"
+                                            t-on-click="openCommandCenter"
+                                            title="Switch to Manager Command Center">
+                                        <i class="fa fa-tachometer"></i>
+                                        <span class="d-none d-sm-inline">Command Center</span>
+                                    </button>
+                                </t>
+
+                                <!-- Refresh Workspace -->
+                                <button class="btn btn-light border shadow-sm btn-sm" t-on-click="loadData" title="Refresh Workspace">
                                     <i class="fa fa-refresh text-primary"></i>
                                 </button>
+
+                                <!-- User Profile Menu -->
+                                <div class="dropdown position-relative">
+                                    <button class="btn btn-light border shadow-sm btn-sm d-flex align-items-center gap-2 px-3 py-1"
+                                            type="button"
+                                            t-on-click="toggleUserDropdown"
+                                            aria-expanded="false">
+                                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold" style="width: 28px; height: 28px; font-size: 13px;">
+                                            <t t-esc="(state.user and state.user.user_name) ? state.user.user_name.charAt(0).toUpperCase() : 'S'"/>
+                                        </div>
+                                        <div class="text-start d-none d-md-block lh-1">
+                                            <div class="fw-semibold text-dark small"><t t-esc="state.user ? state.user.user_name : 'User'"/></div>
+                                            <div class="text-muted" style="font-size: 10px;"><t t-esc="state.user ? state.user.role_name : 'Sales Rep'"/></div>
+                                        </div>
+                                        <i class="fa fa-chevron-down text-muted" style="font-size: 10px;"></i>
+                                    </button>
+
+                                    <!-- Dropdown Menu -->
+                                    <div t-if="state.isUserMenuOpen"
+                                         class="dropdown-menu dropdown-menu-end show shadow border-0 mt-2 p-2 position-absolute"
+                                         style="right: 0; min-width: 240px; z-index: 1050;">
+                                        <div class="px-3 py-2 border-bottom mb-2">
+                                            <div class="fw-bold text-dark"><t t-esc="state.user ? state.user.user_name : 'Sales Representative'"/></div>
+                                            <div class="text-muted small"><t t-esc="state.user ? (state.user.user_email || state.user.user_login) : ''"/></div>
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle mt-1">
+                                                <i class="fa fa-user-circle me-1"></i><t t-esc="state.user ? state.user.role_name : 'Sales Rep'"/>
+                                            </span>
+                                        </div>
+
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded text-dark" href="#" t-on-click.prevent="() => this.openFilteredDeals('draft')">
+                                            <i class="fa fa-file-text-o text-primary" style="width: 18px;"></i> My Quotations
+                                        </a>
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded text-dark" href="#" t-on-click.prevent="openPendingApprovals">
+                                            <i class="fa fa-clock-o text-warning" style="width: 18px;"></i> Pending Approvals
+                                        </a>
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded text-dark" href="#" t-on-click.prevent="() => this.openFilteredDeals('high_risk')">
+                                            <i class="fa fa-exclamation-triangle text-danger" style="width: 18px;"></i> High Risk Deals
+                                        </a>
+
+                                        <div class="dropdown-divider my-2"></div>
+
+                                        <a class="dropdown-item d-flex align-items-center gap-2 py-2 rounded text-danger fw-semibold" href="#" t-on-click.prevent="onLogout">
+                                            <i class="fa fa-sign-out text-danger" style="width: 18px;"></i> Log Out
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
