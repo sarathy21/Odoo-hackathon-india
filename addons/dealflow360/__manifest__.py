@@ -26,6 +26,8 @@
         'views/portal_templates.xml',
         'wizard/negotiation_reject_wizard_views.xml',
         'views/negotiation_views.xml',
+        'views/deal_health_views.xml',
+        'views/anomaly_views.xml',
         'views/menus.xml',
     ],
     'assets': {

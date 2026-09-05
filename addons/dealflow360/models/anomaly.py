@@ -92,6 +92,15 @@ class DealAnomaly(models.Model):
                 'resolved_at': fields.Datetime.now()
             })
 
+    def action_resolve(self):
+        """Action for users to manually resolve anomalies."""
+        for record in self:
+            if record.state == 'active':
+                record.sudo().write({
+                    'state': 'resolved',
+                    'resolved_at': fields.Datetime.now()
+                })
+
     def _detect_extreme_discount(self, order):
         # Discount > allowed + 20%
         extreme = False

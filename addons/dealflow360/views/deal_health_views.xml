@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dealflow_deal_health_form" model="ir.ui.view">
+        <field name="name">dealflow.deal.health.form</field>
+        <field name="model">dealflow.deal.health</field>
+        <field name="arch" type="xml">
+            <form create="0" edit="0" delete="0">
+                <header>
+                    <field name="status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Deal Health: <field name="order_id" readonly="1"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="health_score"/>
+                            <field name="health_level"/>
+                            <field name="previous_score"/>
+                            <field name="score_delta"/>
+                        </group>
+                        <group>
+                            <field name="evaluated_at"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Components">
+                            <group>
+                                <field name="risk_component"/>
+                                <field name="approval_component"/>
+                                <field name="negotiation_component"/>
+                                <field name="fulfillment_component"/>
+                                <field name="billing_component"/>
+                                <field name="anomaly_count"/>
+                            </group>
+                        </page>
+                        <page string="Explanation">
+                            <field name="explanation"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dealflow_deal_health_list" model="ir.ui.view">
+        <field name="name">dealflow.deal.health.list</field>
+        <field name="model">dealflow.deal.health</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" decoration-success="health_level=='healthy'" decoration-danger="health_level=='critical'" decoration-warning="health_level=='at_risk'">
+                <field name="order_id"/>
+                <field name="health_score"/>
+                <field name="health_level"/>
+                <field name="status"/>
+                <field name="evaluated_at"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_dealflow_deal_health" model="ir.actions.act_window">
+        <field name="name">Deal Health</field>
+        <field name="res_model">dealflow.deal.health</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
