@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dealflow_customer_tier_user,dealflow.customer.tier.user,model_dealflow_customer_tier,base.group_user,1,0,0,0
+access_dealflow_customer_tier_manager,dealflow.customer.tier.manager,model_dealflow_customer_tier,dealflow360.group_dealflow_manager,1,1,1,1
+access_dealflow_discount_rule_user,dealflow.discount.rule.user,model_dealflow_discount_rule,base.group_user,1,0,0,0
+access_dealflow_discount_rule_manager,dealflow.discount.rule.manager,model_dealflow_discount_rule,dealflow360.group_dealflow_manager,1,1,1,1

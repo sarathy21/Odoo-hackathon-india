@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- List View -->
+    <record id="view_dealflow_discount_rule_list" model="ir.ui.view">
+        <field name="name">dealflow.discount.rule.list</field>
+        <field name="model">dealflow.discount.rule</field>
+        <field name="arch" type="xml">
+            <list string="Discount Rules">
+                <field name="name"/>
+                <field name="tier_id"/>
+                <field name="category_id"/>
+                <field name="max_discount"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Form View -->
+    <record id="view_dealflow_discount_rule_form" model="ir.ui.view">
+        <field name="name">dealflow.discount.rule.form</field>
+        <field name="model">dealflow.discount.rule</field>
+        <field name="arch" type="xml">
+            <form string="Discount Rule">
+                <sheet>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" placeholder="e.g. Gold Hardware 15%"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="tier_id"/>
+                            <field name="category_id"/>
+                            <field name="max_discount"/>
+                        </group>
+                        <group>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_dealflow_discount_rule_search" model="ir.ui.view">
+        <field name="name">dealflow.discount.rule.search</field>
+        <field name="model">dealflow.discount.rule</field>
+        <field name="arch" type="xml">
+            <search string="Search Discount Rules">
+                <field name="name"/>
+                <field name="tier_id"/>
+                <field name="category_id"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Customer Tier" name="group_tier" context="{'group_by': 'tier_id'}"/>
+                <filter string="Product Category" name="group_category" context="{'group_by': 'category_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_dealflow_discount_rule" model="ir.actions.act_window">
+        <field name="name">Discount Rules</field>
+        <field name="res_model">dealflow.discount.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_dealflow_discount_rule_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create your first Discount Rule
+            </p>
+            <p>
+                Discount rules limit the maximum allowed discount based on customer tier and product category.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem id="menu_dealflow360_root"
+              name="DealFlow360"
+              web_icon="dealflow360,static/description/icon.png"
+              groups="dealflow360.group_dealflow_manager"
+              sequence="50"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_dealflow360_config"
+              name="Configuration"
+              parent="menu_dealflow360_root"
+              sequence="100"/>
+
+    <!-- Discount Rules Action Menu -->
+    <menuitem id="menu_dealflow360_discount_rule"
+              name="Discount Rules"
+              parent="menu_dealflow360_config"
+              action="action_dealflow_discount_rule"
+              sequence="10"/>
+
+    <!-- Customer Tiers Action Menu -->
+    <menuitem id="menu_dealflow360_customer_tier"
+              name="Customer Tiers"
+              parent="menu_dealflow360_config"
+              action="action_dealflow_customer_tier"
+              sequence="20"/>
+</odoo>

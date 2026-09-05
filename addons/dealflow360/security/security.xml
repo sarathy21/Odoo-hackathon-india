@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- DealFlow360 Manager Group -->
+        <record id="group_dealflow_manager" model="res.groups">
+            <field name="name">DealFlow360 Manager</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="comment">The user will have full access to configure DealFlow360 rules.</field>
+        </record>
+    </data>
+</odoo>
