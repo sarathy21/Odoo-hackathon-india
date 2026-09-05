@@ -65,4 +65,17 @@
         <field name="domain_force">[('negotiation_id.partner_id.commercial_partner_id', '=', user.partner_id.commercial_partner_id.id)]</field>
         <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
     </record>
+    <record id="dealflow_health_company_rule" model="ir.rule">
+        <field name="name">DealFlow Health: multi-company</field>
+        <field name="model_id" ref="model_dealflow_deal_health"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="dealflow_anomaly_company_rule" model="ir.rule">
+        <field name="name">DealFlow Anomaly: multi-company</field>
+        <field name="model_id" ref="model_dealflow_anomaly"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
 </odoo>

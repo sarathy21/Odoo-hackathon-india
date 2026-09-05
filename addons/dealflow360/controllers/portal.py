@@ -57,6 +57,11 @@ class DealFlowPortalController(http.Controller):
                 'price_subtotal': line.price_subtotal,
             })
 
+        # Find active or latest negotiation for this quotation
+        active_neg = env['dealflow.negotiation'].sudo().search([
+            ('order_id', '=', order.id)
+        ], order='id desc', limit=1)
+
         # Deliberately hide internal risk score, risk level, internal approval logs, margins, costs
         return {
             'status': 'success',
@@ -70,6 +75,7 @@ class DealFlowPortalController(http.Controller):
                 'amount_total': order.amount_total,
                 'state': order.state,
                 'commercial_revision': order.dealflow_commercial_revision,
+                'active_negotiation_id': active_neg.id if active_neg else False,
                 'lines': lines
             }
         }

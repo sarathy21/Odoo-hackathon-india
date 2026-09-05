@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="sale_order_portal_content_dealflow_negotiation" inherit_id="sale.sale_order_portal_content" name="DealFlow360 Negotiation Portal Integration">
+        <xpath expr="//div[@id='introduction']" position="before">
+            <div id="dealflow_negotiation_portal_container" class="mb-4" t-att-data-order-id="sale_order.id" t-att-data-access-token="sale_order.access_token">
+                <!-- Dynamically populated by DealFlow360 Portal JavaScript -->
+            </div>
+        </xpath>
+    </template>
+</odoo>

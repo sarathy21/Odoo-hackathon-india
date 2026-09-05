@@ -23,3 +23,7 @@ access_dealflow_negotiation_user,dealflow.negotiation.user,model_dealflow_negoti
 access_dealflow_negotiation_line_user,dealflow.negotiation.line.user,model_dealflow_negotiation_line,base.group_user,1,1,1,0
 access_dealflow_negotiation_manager,dealflow.negotiation.manager,model_dealflow_negotiation,dealflow360.group_dealflow_manager,1,1,1,1
 access_dealflow_negotiation_line_manager,dealflow.negotiation.line.manager,model_dealflow_negotiation_line,dealflow360.group_dealflow_manager,1,1,1,1
+access_dealflow_health_user,dealflow.deal.health.user,model_dealflow_deal_health,base.group_user,1,0,1,0
+access_dealflow_health_manager,dealflow.deal.health.manager,model_dealflow_deal_health,dealflow360.group_dealflow_manager,1,1,1,1
+access_dealflow_anomaly_user,dealflow.anomaly.user,model_dealflow_anomaly,base.group_user,1,0,1,0
+access_dealflow_anomaly_manager,dealflow.anomaly.manager,model_dealflow_anomaly,dealflow360.group_dealflow_manager,1,1,1,1

@@ -11,3 +11,5 @@ from . import res_partner
 from . import sale_order
 from . import sale_order_line
 from . import negotiation
+from . import deal_health
+from . import anomaly

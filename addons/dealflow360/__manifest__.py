@@ -24,6 +24,7 @@
         'views/stock_warehouse_views.xml',
         'views/res_partner_views.xml',
         'views/sale_order_views.xml',
+        'views/portal_templates.xml',
     ],
     'assets': {
         'web.assets_backend': [
@@ -33,6 +34,10 @@
             'dealflow360/static/src/xml/command_center.xml',
             'dealflow360/static/src/js/sales_rep_workspace.js',
             'dealflow360/static/src/xml/sales_rep_workspace.xml',
+        ],
+        'web.assets_frontend': [
+            'dealflow360/static/src/css/dealflow_portal.css',
+            'dealflow360/static/src/js/dealflow_portal_negotiation.js',
         ],
     },
     'demo': [],

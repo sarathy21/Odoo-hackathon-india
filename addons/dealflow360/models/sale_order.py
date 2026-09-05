@@ -4,6 +4,13 @@ from odoo import models, fields, api
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        orders = super().create(vals_list)
+        for order in orders:
+            self.env['dealflow.anomaly'].detect_anomalies(order)
+        return orders
+
     # Risk UI Explanatory Fields
     dealflow_weighted_excess = fields.Float(string='Weighted Excess (%)', compute='_compute_dealflow_risk_score', store=True)
     dealflow_risky_line_count = fields.Integer(string='Risky Line Count', compute='_compute_dealflow_risk_score', store=True)
@@ -95,6 +102,20 @@ class SaleOrder(models.Model):
             rule_count = self.env['dealflow.approval.rule'].search_count(domain)
             order.approval_required = rule_count > 0
 
+    def _evaluate_approval_trigger(self):
+        for order in self:
+            if order.approval_required and order.state in ['draft', 'sent']:
+                # Don't auto-create a new approval after a rejection;
+                # the quotation must be materially revised first.
+                if order.approval_status == 'rejected':
+                    continue
+                active = self.env['dealflow.approval'].search_count([
+                    ('order_id', '=', order.id),
+                    ('status', 'in', ['pending', 'approved'])
+                ])
+                if active == 0:
+                    order.action_request_approval()
+
     def write(self, vals):
         material_fields = {'partner_id', 'company_id', 'order_line'}
         if any(f in vals for f in material_fields):
@@ -106,6 +127,10 @@ class SaleOrder(models.Model):
         for order in self:
             if order.approval_status in ['approved', 'pending'] and order.dealflow_commercial_revision != order.dealflow_approved_revision:
                 order._invalidate_approval("Commercial modification invalidated previous approval.")
+            order._evaluate_approval_trigger()
+
+            # Phase C and D integration
+            self.env['dealflow.anomaly'].detect_anomalies(order)
 
         return res
 
