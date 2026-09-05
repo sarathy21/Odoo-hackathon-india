@@ -27,6 +27,26 @@ class DealFlowApproval(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code('dealflow.approval') or 'New'
         return super().create(vals_list)
 
+    def action_approve_current_step(self, reason=''):
+        self.ensure_one()
+        if self.status != 'pending':
+            raise UserError(f"Cannot approve an approval request with status '{self.status}'.")
+        sorted_steps = self.step_ids.sorted(key=lambda s: (s.sequence, s.id))
+        pending_step = sorted_steps.filtered(lambda s: s.status == 'pending')
+        if not pending_step:
+            raise UserError("No pending step found to approve.")
+        pending_step[0].action_approve(reason=reason)
+
+    def action_reject_current_step(self, reason=''):
+        self.ensure_one()
+        if self.status != 'pending':
+            raise UserError(f"Cannot reject an approval request with status '{self.status}'.")
+        sorted_steps = self.step_ids.sorted(key=lambda s: (s.sequence, s.id))
+        pending_step = sorted_steps.filtered(lambda s: s.status == 'pending')
+        if not pending_step:
+            raise UserError("No pending step found to reject.")
+        pending_step[0].action_reject(reason=reason)
+
 class DealFlowApprovalStep(models.Model):
     _name = 'dealflow.approval.step'
     _description = 'DealFlow360 Approval Step'
@@ -48,26 +68,42 @@ class DealFlowApprovalStep(models.Model):
     approver_id = fields.Many2one('res.users', string='Approver', readonly=True)
     reason = fields.Text(string='Reason', readonly=True)
 
+    def _is_user_eligible(self, user=None):
+        self.ensure_one()
+        user = user or self.env.user
+        if self.status != 'pending' or self.approval_id.status != 'pending':
+            return False
+        order = self.approval_id.order_id
+        if order and order.dealflow_commercial_revision != order.dealflow_approved_revision:
+            return False
+        if self.company_id and self.company_id.id not in user.company_ids.ids:
+            return False
+        all_steps = self.approval_id.step_ids.sorted(key=lambda s: (s.sequence, s.id))
+        for s in all_steps:
+            if s.status == 'pending':
+                if s.id != self.id:
+                    return False
+                break
+        if self.group_id not in user.all_group_ids:
+            return False
+        return True
+
     def action_approve(self, reason=''):
         self.ensure_one()
-        
-        if self.status != 'pending':
-            raise UserError("You can only action pending approval steps.")
-            
-        # Enforce sequential approval
-        all_steps = self.env['dealflow.approval.step'].search([
-            ('approval_id', '=', self.approval_id.id)
-        ], order='sequence, id')
-        
-        for step in all_steps:
-            if step.status == 'pending':
-                if step.id != self.id:
+        if not self._is_user_eligible():
+            if self.status != 'pending':
+                raise UserError("You can only action pending approval steps.")
+            if self.approval_id.status != 'pending':
+                raise UserError(f"Approval request is '{self.approval_id.status}' and cannot be actioned.")
+            if self.company_id and self.company_id.id not in self.env.companies.ids:
+                raise UserError("You cannot action approval steps for another company.")
+            all_steps = self.approval_id.step_ids.sorted(key=lambda s: (s.sequence, s.id))
+            for step in all_steps:
+                if step.status == 'pending' and step.id != self.id:
                     raise UserError(f"You must wait for previous steps (e.g. {step.rule_id.name}) to be approved first.")
-                break
-                
-        if not self.env.user.has_group(self.group_id.get_external_id().get(self.group_id.id) or f'{self.group_id.category_id.name}.{self.group_id.name}'):
-            if self.group_id not in self.env.user.groups_id:
+            if self.group_id not in self.env.user.all_group_ids:
                 raise UserError(f"You must belong to the '{self.group_id.name}' group to approve this step.")
+            raise UserError("You are not authorized to action this approval step.")
         
         self.write({
             'status': 'approved',
@@ -84,6 +120,7 @@ class DealFlowApprovalStep(models.Model):
             'reason': f"Step {self.rule_id.name} approved."
         })
         
+        all_steps = self.approval_id.step_ids
         if all(step.status == 'approved' for step in all_steps):
             self.approval_id.write({'status': 'approved'})
             self.approval_id.order_id.write({'approval_status': 'approved'})
@@ -98,22 +135,20 @@ class DealFlowApprovalStep(models.Model):
 
     def action_reject(self, reason=''):
         self.ensure_one()
-        
-        if self.status != 'pending':
-            raise UserError("You can only action pending approval steps.")
-            
-        all_steps = self.env['dealflow.approval.step'].search([
-            ('approval_id', '=', self.approval_id.id)
-        ], order='sequence, id')
-        
-        for step in all_steps:
-            if step.status == 'pending':
-                if step.id != self.id:
+        if not self._is_user_eligible():
+            if self.status != 'pending':
+                raise UserError("You can only action pending approval steps.")
+            if self.approval_id.status != 'pending':
+                raise UserError(f"Approval request is '{self.approval_id.status}' and cannot be actioned.")
+            if self.company_id and self.company_id.id not in self.env.companies.ids:
+                raise UserError("You cannot action approval steps for another company.")
+            all_steps = self.approval_id.step_ids.sorted(key=lambda s: (s.sequence, s.id))
+            for step in all_steps:
+                if step.status == 'pending' and step.id != self.id:
                     raise UserError(f"You must wait for previous steps (e.g. {step.rule_id.name}) to be approved first.")
-                break
-                
-        if self.group_id not in self.env.user.groups_id:
-            raise UserError(f"You must belong to the '{self.group_id.name}' group to reject this step.")
+            if self.group_id not in self.env.user.all_group_ids:
+                raise UserError(f"You must belong to the '{self.group_id.name}' group to reject this step.")
+            raise UserError("You are not authorized to action this approval step.")
             
         self.write({
             'status': 'rejected',
@@ -153,3 +188,9 @@ class DealFlowApprovalLog(models.Model):
     new_status = fields.Char(string='New Status', readonly=True)
     timestamp = fields.Datetime(string='Timestamp', default=fields.Datetime.now, required=True, readonly=True)
     reason = fields.Text(string='Reason', readonly=True)
+
+    def write(self, vals):
+        raise UserError("Approval audit logs are immutable and cannot be modified.")
+
+    def unlink(self):
+        raise UserError("Approval audit logs are immutable and cannot be deleted.")

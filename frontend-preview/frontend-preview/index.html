@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DealFlow360 - Frontend Preview</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/preview.css">
+</head>
+<body>
+
+    <!-- Notification Container -->
+    <div id="toast-container"></div>
+
+    <div class="d-flex">
+        <!-- Sidebar Navigation -->
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h4 class="mb-0">DealFlow360 <br><small class="text-white-50 fs-6">Preview Mode</small></h4>
+            </div>
+            <ul class="list-unstyled components">
+                <li class="active"><a href="#dashboard"><i class="fa fa-home"></i> Dashboard</a></li>
+                <li><a href="#customers"><i class="fa fa-users"></i> Customers</a></li>
+                <li><a href="#deals"><i class="fa fa-file-invoice-dollar"></i> Quotations / Deals</a></li>
+                <li><a href="#deal-workspace"><i class="fa fa-briefcase"></i> Deal Workspace</a></li>
+                <li><a href="#fulfillment"><i class="fa fa-truck"></i> Fulfillment</a></li>
+                <li><a href="#allocation-workspace"><i class="fa fa-boxes"></i> Allocation Workspace</a></li>
+                <li><a href="#deal-health"><i class="fa fa-heartbeat"></i> Deal Health</a></li>
+                <li><a href="#configuration"><i class="fa fa-cogs"></i> Configuration</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <div id="content" class="w-100">
+            <!-- Warning Banner -->
+            <div class="alert dealflow-bg-warning rounded-0 mx-n3 mt-n3 px-4 py-2 text-center fw-bold shadow-sm mb-4">
+                <i class="fa fa-exclamation-triangle me-2"></i> TEMPORARY FRONTEND PREVIEW — NOT ODOO RUNTIME
+            </div>
+
+            <!-- SECTION: Dashboard -->
+            <div id="dashboard" class="view-section active">
+                <h2 class="text-primary mb-4">Welcome to DealFlow360 Preview</h2>
+                <p>This is a temporary frontend preview environment built for visual testing while the Odoo 19 / Docker runtime is unavailable.</p>
+                <p>Use the sidebar to navigate between mocked views. All interactions are local and powered by temporary UI fixtures.</p>
+            </div>
+
+            <!-- SECTION: Customers -->
+            <div id="customers" class="view-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="text-primary">Customers</h2>
+                    <button class="btn btn-primary">Create</button>
+                </div>
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="p-3 border-bottom d-flex gap-2">
+                            <input type="text" class="form-control w-25" placeholder="Search...">
+                            <button class="btn btn-outline-secondary"><i class="fa fa-filter"></i> Filters</button>
+                            <button class="btn btn-outline-secondary"><i class="fa fa-bars"></i> Group By</button>
+                        </div>
+                        <table class="table table-hover mb-0" id="customers-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Tier</th>
+                                    <th>Salesperson</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rendered via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: Deals -->
+            <div id="deals" class="view-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="text-primary">Quotations / Deals</h2>
+                    <button class="btn btn-primary">Create</button>
+                </div>
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="p-3 border-bottom d-flex gap-2">
+                            <input type="text" class="form-control w-25" placeholder="Search...">
+                            <button class="btn btn-outline-secondary"><i class="fa fa-filter"></i> Filters</button>
+                        </div>
+                        <table class="table table-hover mb-0" id="deals-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Deal / Quotation</th>
+                                    <th>Customer</th>
+                                    <th>Salesperson</th>
+                                    <th>Amount</th>
+                                    <th>Status</th>
+                                    <th>Risk</th>
+                                    <th>Approval</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rendered via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: Deal Workspace -->
+            <div id="deal-workspace" class="view-section">
+                <div class="o_dealflow360_workspace p-4 shadow-sm mb-4 bg-white">
+                    <div class="d-flex justify-content-between mb-4">
+                        <div>
+                            <h2 class="text-primary mb-0" id="dw-title">Deal Title</h2>
+                            <p class="text-muted mb-0" id="dw-customer">Customer</p>
+                        </div>
+                        <div class="text-end">
+                            <h3 class="mb-0" id="dw-amount">₹0.00</h3>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card h-100 border-start border-primary border-4">
+                                <div class="card-body">
+                                    <h6 class="text-muted">Discount Analysis</h6>
+                                    <div>Requested: <strong id="dw-req-discount"></strong></div>
+                                    <div>Allowed: <strong id="dw-allow-discount"></strong></div>
+                                    <div class="mt-2 text-warning fw-bold" id="dw-discount-status"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100 border-start border-danger border-4">
+                                <div class="card-body">
+                                    <h6 class="text-muted">Deal Risk</h6>
+                                    <div>Score: <strong id="dw-risk-score"></strong></div>
+                                    <div class="mt-2" id="dw-risk-level"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100 border-start border-success border-4">
+                                <div class="card-body">
+                                    <h6 class="text-muted">Margin</h6>
+                                    <h3 class="text-success mb-0" id="dw-margin"></h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card h-100 border-start border-info border-4">
+                                <div class="card-body">
+                                    <h6 class="text-muted">Approval Status</h6>
+                                    <strong class="text-info" id="dw-approval"></strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5 class="text-primary border-bottom pb-2">Line Item Discount Analysis</h5>
+                            <table class="table table-sm" id="dw-lines-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Qty</th>
+                                        <th>Price</th>
+                                        <th>Discount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-4">
+                            <h5 class="text-primary border-bottom pb-2">Upsell / Cross-sell</h5>
+                            <div id="dw-upsells">
+                                <!-- Rendered via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: Fulfillment -->
+            <div id="fulfillment" class="view-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="text-primary">Warehouse / Fulfillment</h2>
+                </div>
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div class="p-3 border-bottom d-flex gap-2">
+                            <input type="text" class="form-control w-25" placeholder="Search...">
+                        </div>
+                        <table class="table table-hover mb-0" id="fulfillment-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Order</th>
+                                    <th>Customer</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rendered via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: Allocation Workspace -->
+            <div id="allocation-workspace" class="view-section">
+                <div class="o_dealflow360_workspace p-4 shadow-sm mb-4 bg-white">
+                    <h2 class="text-primary mb-1">Allocation Workspace</h2>
+                    <h5 class="text-muted mb-4"><span id="aw-order"></span> - <span id="aw-customer"></span></h5>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-light fw-bold">Required Products</div>
+                                <div class="card-body p-0">
+                                    <table class="table table-sm mb-0" id="aw-required-table">
+                                        <thead><tr><th>Product</th><th>Req</th></tr></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header bg-light fw-bold">Warehouse Availability</div>
+                                <div class="card-body p-0">
+                                    <table class="table table-sm mb-0" id="aw-warehouse-table">
+                                        <thead><tr><th>Warehouse</th><th>Avail</th></tr></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-primary">
+                                <div class="card-header dealflow-bg-info fw-bold">Recommended Split</div>
+                                <div class="card-body p-0">
+                                    <table class="table table-sm mb-0" id="aw-recommended-table">
+                                        <thead><tr><th>Warehouse</th><th>Allocate</th></tr></thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                                <div class="card-footer bg-white border-top-0 d-flex flex-column gap-2">
+                                    <button class="btn btn-primary w-100" onclick="acceptSplit()">Accept Suggested Split</button>
+                                    <button class="btn btn-outline-secondary w-100" onclick="enableManualOverride()">Manual Override</button>
+                                    <button class="btn btn-success w-100" id="aw-confirm-manual-btn" style="display: none;" onclick="confirmManualAllocation()">Confirm Manual Allocation</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION: Deal Health -->
+            <div id="deal-health" class="view-section">
+                <div class="bg-white p-4 shadow-sm" style="max-width: 1200px; margin: 0 auto; border-radius: 4px;">
+                    
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold text-primary mb-0">Deal Health Dashboard</h2>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                Filter: <span id="dh-filter-text">All</span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#" onclick="setHealthFilter('All')">All</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="setHealthFilter('High Risk')">High Risk</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="setHealthFilter('Stalled')">Stalled</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="setHealthFilter('Approval Delay')">Approval Delay</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="setHealthFilter('Discount Anomaly')">Discount Anomaly</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="setHealthFilter('Delivery Slippage')">Delivery Slippage</a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- KPIs -->
+                    <div class="row mb-4">
+                        <div class="col-md"><div class="card border-start border-danger border-4 h-100"><div class="card-body text-center"><h3 class="fw-bold text-danger" id="dh-kpi-1"></h3><h6 class="text-muted">HIGH RISK DEALS</h6></div></div></div>
+                        <div class="col-md"><div class="card border-start border-warning border-4 h-100"><div class="card-body text-center"><h3 class="fw-bold text-warning" id="dh-kpi-2"></h3><h6 class="text-muted">STALLED DEALS</h6></div></div></div>
+                        <div class="col-md"><div class="card border-start border-warning border-4 h-100"><div class="card-body text-center"><h3 class="fw-bold text-warning" id="dh-kpi-3"></h3><h6 class="text-muted">APPROVAL DELAYS</h6></div></div></div>
+                        <div class="col-md"><div class="card border-start border-info border-4 h-100"><div class="card-body text-center"><h3 class="fw-bold text-info" id="dh-kpi-4"></h3><h6 class="text-muted">DISCOUNT ANOMALIES</h6></div></div></div>
+                        <div class="col-md"><div class="card border-start border-secondary border-4 h-100"><div class="card-body text-center"><h3 class="fw-bold text-secondary" id="dh-kpi-5"></h3><h6 class="text-muted">DELIVERY SLIPPAGE</h6></div></div></div>
+                    </div>
+
+                    <!-- Risk Dist -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-white py-3"><h5 class="fw-bold mb-0 text-primary">Deal Risk Distribution</h5></div>
+                        <div class="card-body">
+                            <div class="progress" style="height: 30px;">
+                                <div class="progress-bar dealflow-bg-success" id="dh-dist-low"></div>
+                                <div class="progress-bar dealflow-bg-warning" id="dh-dist-med"></div>
+                                <div class="progress-bar dealflow-bg-danger" id="dh-dist-high"></div>
+                                <div class="progress-bar dealflow-bg-dark" id="dh-dist-crit"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Deals Requiring Attention -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0 text-primary">Deals Requiring Attention</h5>
+                            <span class="badge dealflow-bg-info rounded-pill" id="dh-count"></span>
+                        </div>
+                        <div id="dh-table-container" class="table-responsive">
+                            <table class="table table-hover mb-0" id="dh-table">
+                                <thead class="table-light">
+                                    <tr><th>Deal</th><th>Customer</th><th>Issue</th><th>Age</th><th>Risk</th><th>Status</th><th class="text-end">Action</th></tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div id="dh-empty-state" class="card-body text-center py-5" style="display: none;">
+                            <i class="fa fa-check-circle text-success fa-3x mb-3"></i>
+                            <h4 class="text-muted">No deals currently require attention.</h4>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SECTION: Configuration -->
+            <div id="configuration" class="view-section">
+                <h2 class="text-primary mb-4">Configuration (Preview)</h2>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header bg-light fw-bold">Customer Tiers</div>
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Enterprise <span class="badge bg-primary rounded-pill"><i class="fa fa-cog"></i> Edit</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Gold <span class="badge bg-primary rounded-pill"><i class="fa fa-cog"></i> Edit</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Silver <span class="badge bg-primary rounded-pill"><i class="fa fa-cog"></i> Edit</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Standard <span class="badge bg-primary rounded-pill"><i class="fa fa-cog"></i> Edit</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

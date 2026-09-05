@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="0">
+
+    <!-- Product Categories -->
+    <record id="category_hardware" model="product.category">
+        <field name="name">Hardware</field>
+    </record>
+
+    <record id="category_services" model="product.category">
+        <field name="name">Services</field>
+    </record>
+
+    <record id="category_software" model="product.category">
+        <field name="name">Software</field>
+    </record>
+
+    <!-- Products -->
+    <record id="product_enterprise_laptop" model="product.product">
+        <field name="name">Enterprise Laptop</field>
+        <field name="categ_id" ref="category_hardware"/>
+        <field name="list_price">100000.0</field>
+        <field name="standard_price">70000.0</field>
+        <field name="type">consu</field>
+        <field name="sale_ok">True</field>
+    </record>
+
+    <record id="product_business_monitor" model="product.product">
+        <field name="name">Business Monitor</field>
+        <field name="categ_id" ref="category_hardware"/>
+        <field name="list_price">30000.0</field>
+        <field name="standard_price">20000.0</field>
+        <field name="type">consu</field>
+        <field name="sale_ok">True</field>
+    </record>
+
+    <record id="product_premium_support" model="product.product">
+        <field name="name">Premium Support</field>
+        <field name="categ_id" ref="category_services"/>
+        <field name="list_price">20000.0</field>
+        <field name="standard_price">8000.0</field>
+        <field name="type">service</field>
+        <field name="sale_ok">True</field>
+    </record>
+
+    <record id="product_implementation_service" model="product.product">
+        <field name="name">Implementation Service</field>
+        <field name="categ_id" ref="category_services"/>
+        <field name="list_price">50000.0</field>
+        <field name="standard_price">25000.0</field>
+        <field name="type">service</field>
+        <field name="sale_ok">True</field>
+    </record>
+
+    <record id="product_annual_support" model="product.product">
+        <field name="name">Annual Support</field>
+        <field name="categ_id" ref="category_services"/>
+        <field name="list_price">30000.0</field>
+        <field name="standard_price">10000.0</field>
+        <field name="type">service</field>
+        <field name="sale_ok">True</field>
+    </record>
+
+    <!-- Customer Tiers -->
+    <record id="tier_gold" model="dealflow.customer.tier">
+        <field name="name">Gold</field>
+    </record>
+
+    <record id="tier_silver" model="dealflow.customer.tier">
+        <field name="name">Silver</field>
+    </record>
+
+    <record id="tier_bronze" model="dealflow.customer.tier">
+        <field name="name">Bronze</field>
+    </record>
+
+    <!-- B2B Customers -->
+    <record id="partner_abc_tech" model="res.partner">
+        <field name="name">ABC Technologies</field>
+        <field name="is_company">True</field>
+        <field name="dealflow_tier_id" ref="tier_gold"/>
+    </record>
+
+    <record id="partner_xyz_ind" model="res.partner">
+        <field name="name">XYZ Industries</field>
+        <field name="is_company">True</field>
+        <field name="dealflow_tier_id" ref="tier_silver"/>
+    </record>
+
+    <record id="partner_global_sol" model="res.partner">
+        <field name="name">Global Solutions</field>
+        <field name="is_company">True</field>
+        <field name="dealflow_tier_id" ref="tier_bronze"/>
+    </record>
+
+    <!-- Discount Rules -->
+    <record id="rule_gold_hardware" model="dealflow.discount.rule">
+        <field name="name">Gold - Hardware (15%)</field>
+        <field name="tier_id" ref="tier_gold"/>
+        <field name="category_id" ref="category_hardware"/>
+        <field name="max_discount">15.0</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="rule_gold_services" model="dealflow.discount.rule">
+        <field name="name">Gold - Services (10%)</field>
+        <field name="tier_id" ref="tier_gold"/>
+        <field name="category_id" ref="category_services"/>
+        <field name="max_discount">10.0</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="rule_silver_hardware" model="dealflow.discount.rule">
+        <field name="name">Silver - Hardware (10%)</field>
+        <field name="tier_id" ref="tier_silver"/>
+        <field name="category_id" ref="category_hardware"/>
+        <field name="max_discount">10.0</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="rule_silver_services" model="dealflow.discount.rule">
+        <field name="name">Silver - Services (5%)</field>
+        <field name="tier_id" ref="tier_silver"/>
+        <field name="category_id" ref="category_services"/>
+        <field name="max_discount">5.0</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="rule_bronze_hardware" model="dealflow.discount.rule">
+        <field name="name">Bronze - Hardware (5%)</field>
+        <field name="tier_id" ref="tier_bronze"/>
+        <field name="category_id" ref="category_hardware"/>
+        <field name="max_discount">5.0</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="rule_bronze_services" model="dealflow.discount.rule">
+        <field name="name">Bronze - Services (0%)</field>
+        <field name="tier_id" ref="tier_bronze"/>
+        <field name="category_id" ref="category_services"/>
+        <field name="max_discount">0.0</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <!-- Product Recommendations -->
+    <record id="rec_laptop_monitor" model="dealflow.product.recommendation">
+        <field name="source_product_id" ref="product_enterprise_laptop"/>
+        <field name="recommended_product_id" ref="product_business_monitor"/>
+        <field name="recommendation_type">cross_sell</field>
+        <field name="priority">10</field>
+        <field name="reason">Customers purchasing enterprise laptops often require an additional business monitor.</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="rec_laptop_support" model="dealflow.product.recommendation">
+        <field name="source_product_id" ref="product_enterprise_laptop"/>
+        <field name="recommended_product_id" ref="product_premium_support"/>
+        <field name="recommendation_type">upsell</field>
+        <field name="priority">20</field>
+        <field name="reason">Premium support increases service coverage for enterprise deployments.</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+    <record id="rec_impl_annual" model="dealflow.product.recommendation">
+        <field name="source_product_id" ref="product_implementation_service"/>
+        <field name="recommended_product_id" ref="product_annual_support"/>
+        <field name="recommendation_type">cross_sell</field>
+        <field name="priority">10</field>
+        <field name="reason">Annual support provides continued assistance after implementation.</field>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+
+</odoo>

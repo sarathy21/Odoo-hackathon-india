@@ -15,13 +15,9 @@ class DealFlowDashboard(models.AbstractModel):
         domain_active_deals = [('state', 'in', ['draft', 'sent', 'sale']), ('company_id', 'in', company_ids)]
         
         # 1. KPIs
-        so_groups = self.env['sale.order'].read_group(
-            domain=domain_active_deals,
-            fields=['amount_total:sum'],
-            groupby=[]
-        )
-        active_deals_count = so_groups[0]['__count'] if so_groups else 0
-        pipeline_value = so_groups[0]['amount_total'] if so_groups and so_groups[0].get('amount_total') else 0.0
+        active_deals_count = self.env['sale.order'].search_count(domain_active_deals)
+        active_deals = self.env['sale.order'].search(domain_active_deals)
+        pipeline_value = sum(active_deals.mapped('amount_total'))
 
         # High Risk Deals
         high_risk_domain = domain_active_deals + [('risk_level', '=', 'high')]
@@ -197,3 +193,115 @@ class DealFlowDashboard(models.AbstractModel):
             'my_deals': my_deals
         }
 
+    @api.model
+    def get_sales_manager_data(self):
+        company_ids = self.env.companies.ids
+        company_currency = self.env.company.currency_id
+        currency_symbol = company_currency.symbol or ''
+        currency_position = company_currency.position or 'before'
+
+        domain_active_deals = [('state', 'in', ['draft', 'sent', 'sale']), ('company_id', 'in', company_ids)]
+
+        # 1. KPIs
+        team_active_deals = self.env['sale.order'].search_count(domain_active_deals)
+        active_deals = self.env['sale.order'].search(domain_active_deals)
+        pipeline_value = sum(active_deals.mapped('amount_total'))
+
+        # High Risk Deals (MUST strictly use risk_level == 'high')
+        high_risk_count = self.env['sale.order'].search_count(
+            domain_active_deals + [('risk_level', '=', 'high')]
+        )
+
+        # Pending Approvals
+        pending_approval_count = self.env['dealflow.approval'].search_count([
+            ('status', '=', 'pending'),
+            ('company_id', 'in', company_ids)
+        ])
+
+        # Approved & Rejected counts
+        approved_count = self.env['dealflow.approval'].search_count([
+            ('status', '=', 'approved'),
+            ('company_id', 'in', company_ids)
+        ])
+        rejected_count = self.env['dealflow.approval'].search_count([
+            ('status', '=', 'rejected'),
+            ('company_id', 'in', company_ids)
+        ])
+
+        # 2. Detailed Pending Approvals List for Sales Manager
+        pending_approval_records = self.env['dealflow.approval'].search([
+            ('status', '=', 'pending'),
+            ('company_id', 'in', company_ids)
+        ], order='id desc')
+
+        user_groups = self.env.user.all_group_ids
+        pending_approvals = []
+        for app in pending_approval_records:
+            current_step = False
+            current_step_id = False
+            required_group_name = False
+            is_eligible = False
+
+            sorted_steps = app.step_ids.sorted(key=lambda s: (s.sequence, s.id))
+            for step in sorted_steps:
+                if step.status == 'pending':
+                    current_step = step.rule_id.name
+                    current_step_id = step.id
+                    required_group_name = step.group_id.name
+                    is_eligible = step._is_user_eligible(self.env.user)
+                    break
+
+            cur_symbol = app.order_id.currency_id.symbol if (app.order_id and app.order_id.currency_id) else currency_symbol
+
+            pending_approvals.append({
+                'id': app.id,
+                'order_id': app.order_id.id if app.order_id else False,
+                'order_name': app.order_id.name if app.order_id else 'Unknown',
+                'customer': app.order_id.partner_id.name if (app.order_id and app.order_id.partner_id) else 'Unknown',
+                'amount_total': app.order_id.amount_total if app.order_id else 0.0,
+                'currency_symbol': cur_symbol,
+                'risk_score': round(app.order_id.risk_score, 1) if app.order_id else 0.0,
+                'risk_level': app.order_id.risk_level if app.order_id else 'low',
+                'status': app.status,
+                'current_step_id': current_step_id,
+                'current_step': current_step or 'Pending Review',
+                'required_group': required_group_name or 'N/A',
+                'is_eligible': is_eligible,
+                'requester': app.create_uid.name if app.create_uid else 'System',
+                'create_date': app.create_date.strftime('%Y-%m-%d %H:%M') if app.create_date else ''
+            })
+
+        # 3. High Risk Deals List (strictly risk_level == 'high')
+        high_risk_records = self.env['sale.order'].search_read(
+            domain_active_deals + [('risk_level', '=', 'high')],
+            ['name', 'partner_id', 'user_id', 'amount_total', 'risk_score', 'approval_status', 'currency_id'],
+            limit=10,
+            order='risk_score desc, id desc'
+        )
+
+        high_risk_deals = []
+        for d in high_risk_records:
+            high_risk_deals.append({
+                'id': d['id'],
+                'name': d['name'],
+                'customer': d['partner_id'][1] if d.get('partner_id') else 'Unknown',
+                'salesperson': d['user_id'][1] if d.get('user_id') else 'Unassigned',
+                'amount_total': d['amount_total'],
+                'risk_score': round(d['risk_score'], 1) if d.get('risk_score') else 0.0,
+                'approval_status': d['approval_status'] or 'none'
+            })
+
+        return {
+            'kpis': {
+                'team_active_deals': team_active_deals,
+                'pipeline_value': pipeline_value,
+                'high_risk_deals': high_risk_count,
+                'pending_approvals': pending_approval_count,
+                'approved_approvals': approved_count,
+                'rejected_approvals': rejected_count,
+                'currency_symbol': currency_symbol,
+                'currency_position': currency_position
+            },
+            'pending_approvals': pending_approvals,
+            'high_risk_deals': high_risk_deals
+        }
