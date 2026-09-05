@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Client action for DealFlow360 Dashboard -->
+        <record id="action_dealflow360_dashboard" model="ir.actions.client">
+            <field name="name">DealFlow360 Dashboard</field>
+            <field name="tag">dealflow360.dashboard_action</field>
+            <field name="target">main</field>
+        </record>
+    </data>
+</odoo>

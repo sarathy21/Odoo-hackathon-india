@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="dealflow360.Dashboard" owl="1">
+        <div class="df-dashboard">
+            <div class="df-header">
+                <div>
+                    <h1>DealFlow360 Dashboard</h1>
+                </div>
+                <div class="df-controls">
+                    <button class="btn btn-primary" t-on-click="() => this.loadMockData()">
+                        <i class="fa fa-refresh me-2"></i> Refresh
+                    </button>
+                </div>
+            </div>
+
+            <!-- KPI Summary -->
+            <div class="df-section">
+                <h2>KPI Summary</h2>
+                <div class="df-kpi-row">
+                    <div class="df-card df-kpi-card">
+                        <div class="df-kpi-label">Active Deals</div>
+                        <div class="df-kpi-value"><t t-esc="state.metrics.activeDeals"/></div>
+                        <div class="df-kpi-status info">Current Pipeline</div>
+                    </div>
+                    <div class="df-card df-kpi-card">
+                        <div class="df-kpi-label">Pipeline Value</div>
+                        <div class="df-kpi-value"><t t-esc="state.metrics.pipelineValue"/></div>
+                        <div class="df-kpi-status success">Total Expected</div>
+                    </div>
+                    <div class="df-card df-kpi-card">
+                        <div class="df-kpi-label">Pending Approvals</div>
+                        <div class="df-kpi-value"><t t-esc="state.metrics.pendingApprovals"/></div>
+                        <div class="df-kpi-status warning">Requires Action</div>
+                    </div>
+                    <div class="df-card df-kpi-card">
+                        <div class="df-kpi-label">At Risk Deals</div>
+                        <div class="df-kpi-value"><t t-esc="state.metrics.atRiskDeals"/></div>
+                        <div class="df-kpi-status danger">Needs Attention</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deal Health & Fulfillment Health -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="df-section">
+                        <h2>Deal Health</h2>
+                        <div class="df-card">
+                            <table class="df-table">
+                                <tbody>
+                                    <tr>
+                                        <td><span class="df-badge success">Healthy</span></td>
+                                        <td><t t-esc="state.dealHealth.healthy"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="df-badge warning">Warning</span></td>
+                                        <td><t t-esc="state.dealHealth.warning"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="df-badge danger">At Risk</span></td>
+                                        <td><t t-esc="state.dealHealth.atRisk"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="df-badge danger">Critical</span></td>
+                                        <td><t t-esc="state.dealHealth.critical"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="df-section">
+                        <h2>Fulfillment Health</h2>
+                        <div class="df-card">
+                            <table class="df-table">
+                                <tbody>
+                                    <tr>
+                                        <td><span class="df-badge success">Ready</span></td>
+                                        <td><t t-esc="state.fulfillment.ready"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="df-badge info">Allocation Pending</span></td>
+                                        <td><t t-esc="state.fulfillment.allocationPending"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="df-badge warning">Stock Shortage</span></td>
+                                        <td><t t-esc="state.fulfillment.stockShortage"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="df-badge danger">Delayed</span></td>
+                                        <td><t t-esc="state.fulfillment.delayed"/></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attention Required -->
+            <div class="df-section">
+                <h2>Attention Required</h2>
+                <div class="df-card">
+                    <table class="df-table">
+                        <thead>
+                            <tr>
+                                <th>Record</th>
+                                <th>Customer</th>
+                                <th>Issue</th>
+                                <th>Severity</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="state.attentionRequired" t-as="item" t-key="item.id">
+                                <tr>
+                                    <td><t t-esc="item.record"/></td>
+                                    <td><t t-esc="item.customer"/></td>
+                                    <td><t t-esc="item.issue"/></td>
+                                    <td>
+                                        <span t-attf-class="df-badge #{item.severity === 'High' ? 'danger' : 'warning'}">
+                                            <t t-esc="item.severity"/>
+                                        </span>
+                                    </td>
+                                    <td><t t-esc="item.status"/></td>
+                                    <td><button class="btn btn-sm btn-outline-primary" t-on-click="() => this.openDeal(item.id)">View</button></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Discount Governance & Approval Bottlenecks -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="df-section">
+                        <h2>Discount Governance</h2>
+                        <div class="df-card">
+                            <table class="df-table">
+                                <thead>
+                                    <tr>
+                                        <th>Deal</th>
+                                        <th>Category</th>
+                                        <th>Allowed</th>
+                                        <th>Requested</th>
+                                        <th>Risk</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="state.discounts" t-as="disc" t-key="disc.id">
+                                        <tr>
+                                            <td><t t-esc="disc.deal"/></td>
+                                            <td><t t-esc="disc.category"/></td>
+                                            <td><t t-esc="disc.allowed"/></td>
+                                            <td><t t-esc="disc.requested"/></td>
+                                            <td>
+                                                <span t-attf-class="df-badge #{disc.risk === 'High' ? 'danger' : 'success'}">
+                                                    <t t-esc="disc.risk"/>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="df-section">
+                        <h2>Approval Bottlenecks</h2>
+                        <div class="df-card">
+                            <table class="df-table">
+                                <thead>
+                                    <tr>
+                                        <th>Quotation</th>
+                                        <th>Customer</th>
+                                        <th>Risk</th>
+                                        <th>Waiting</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="state.approvals" t-as="app" t-key="app.id">
+                                        <tr>
+                                            <td><t t-esc="app.quotation"/></td>
+                                            <td><t t-esc="app.customer"/></td>
+                                            <td>
+                                                <span t-attf-class="df-badge #{app.risk === 'High' ? 'danger' : 'warning'}">
+                                                    <t t-esc="app.risk"/>
+                                                </span>
+                                            </td>
+                                            <td><t t-esc="app.waiting"/></td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="df-section">
+                <h2>Recent Activity</h2>
+                <div class="df-card">
+                    <table class="df-table">
+                        <tbody>
+                            <t t-foreach="state.recentActivity" t-as="activity" t-key="activity.id">
+                                <tr>
+                                    <td>
+                                        <div class="fw-bold"><t t-esc="activity.message"/></div>
+                                        <div class="df-text-muted df-text-sm">
+                                            <t t-esc="activity.user"/> • <t t-esc="activity.time"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+        </div>
+    </t>
+</templates>

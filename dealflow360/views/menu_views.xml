@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- DealFlow360 Root Menu -->
+        <menuitem id="menu_dealflow360_root"
+                  name="DealFlow360"
+                  web_icon="dealflow360,static/description/icon.png"
+                  sequence="10"/>
+
+        <!-- Dashboard Menu -->
+        <menuitem id="menu_dealflow360_dashboard"
+                  name="Dashboard"
+                  parent="menu_dealflow360_root"
+                  action="action_dealflow360_dashboard"
+                  sequence="10"/>
+    </data>
+</odoo>

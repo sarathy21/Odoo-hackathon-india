@@ -1,0 +1,122 @@
+@import "variables.scss";
+
+.df-dashboard {
+    background-color: $df-bg;
+    font-family: $df-font-family;
+    min-height: 100vh;
+    padding: 16px;
+
+    .df-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+        
+        h1 {
+            color: $df-primary;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .df-controls {
+            display: flex;
+            gap: 12px;
+        }
+    }
+
+    .df-kpi-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .df-card {
+        background-color: $df-surface;
+        border: 1px solid $df-border-color;
+        border-radius: $df-border-radius;
+        box-shadow: $df-shadow-sm;
+        padding: 16px;
+        
+        &.df-kpi-card {
+            .df-kpi-label {
+                font-size: 14px;
+                color: #6c757d;
+                margin-bottom: 8px;
+                text-transform: uppercase;
+                font-weight: 500;
+            }
+            .df-kpi-value {
+                font-size: 28px;
+                font-weight: bold;
+                color: $df-primary;
+            }
+            .df-kpi-status {
+                font-size: 12px;
+                margin-top: 8px;
+                &.success { color: $df-success; }
+                &.warning { color: $df-warning; }
+                &.danger { color: $df-danger; }
+                &.info { color: $df-info; }
+            }
+        }
+    }
+
+    .df-section {
+        margin-bottom: 32px;
+        
+        h2 {
+            font-size: 18px;
+            color: #343a40;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+    }
+
+    .df-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: $df-surface;
+        border: 1px solid $df-border-color;
+        border-radius: $df-border-radius;
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid $df-border-color;
+        }
+        
+        th {
+            background-color: #f1f3f5;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+    }
+
+    .df-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        
+        &.success { background-color: rgba($df-success, 0.1); color: $df-success; }
+        &.warning { background-color: rgba($df-warning, 0.1); color: $df-warning; }
+        &.danger { background-color: rgba($df-danger, 0.1); color: $df-danger; }
+        &.info { background-color: rgba($df-info, 0.1); color: $df-info; }
+    }
+
+    .df-text-muted {
+        color: #6c757d;
+    }
+    
+    .df-text-sm {
+        font-size: 12px;
+    }
+}
+
