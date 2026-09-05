@@ -2,3 +2,4 @@
 # DealFlow360 package initialization
 
 from . import models
+from . import tests
