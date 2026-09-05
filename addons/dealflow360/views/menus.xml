@@ -48,39 +48,10 @@
               parent="menu_dealflow360_root"
               action="action_dealflow_deals"
               sequence="20"/>
-
-    <!-- Approvals Menu -->
-    <menuitem id="menu_dealflow360_approvals"
-              name="Approvals"
-              parent="menu_dealflow360_root"
-              action="action_dealflow_approval"
-              sequence="30"/>
-
-    <!-- Recommendations Menu -->
-    <menuitem id="menu_dealflow360_recommendations"
-              name="Recommendations"
-              parent="menu_dealflow360_root"
-              action="action_dealflow_product_recommendation"
-              sequence="40"/>
-
     <!-- Configuration Menu -->
     <menuitem id="menu_dealflow360_config"
               name="Configuration"
               parent="menu_dealflow360_root"
               groups="dealflow360.group_dealflow_manager"
               sequence="100"/>
-
-    <!-- Discount Rules Action Menu -->
-    <menuitem id="menu_dealflow360_discount_rule"
-              name="Discount Rules"
-              parent="menu_dealflow360_config"
-              action="action_dealflow_discount_rule"
-              sequence="10"/>
-
-    <!-- Customer Tiers Action Menu -->
-    <menuitem id="menu_dealflow360_customer_tier"
-              name="Customer Tiers"
-              parent="menu_dealflow360_config"
-              action="action_dealflow_customer_tier"
-              sequence="20"/>
 </odoo>

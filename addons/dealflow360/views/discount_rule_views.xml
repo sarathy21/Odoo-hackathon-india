@@ -79,4 +79,11 @@
             </p>
         </field>
     </record>
+
+    <!-- Menuitem -->
+    <menuitem id="menu_dealflow360_discount_rule"
+              name="Discount Rules"
+              parent="menu_dealflow360_config"
+              action="action_dealflow_discount_rule"
+              sequence="10"/>
 </odoo>

@@ -46,4 +46,11 @@
             </p>
         </field>
     </record>
+
+    <!-- Menuitem -->
+    <menuitem id="menu_dealflow360_customer_tier"
+              name="Customer Tiers"
+              parent="menu_dealflow360_config"
+              action="action_dealflow_customer_tier"
+              sequence="20"/>
 </odoo>
