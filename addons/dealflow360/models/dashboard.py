@@ -15,13 +15,9 @@ class DealFlowDashboard(models.AbstractModel):
         domain_active_deals = [('state', 'in', ['draft', 'sent', 'sale']), ('company_id', 'in', company_ids)]
         
         # 1. KPIs
-        so_groups = self.env['sale.order'].read_group(
-            domain=domain_active_deals,
-            fields=['amount_total:sum'],
-            groupby=[]
-        )
-        active_deals_count = so_groups[0]['__count'] if so_groups else 0
-        pipeline_value = so_groups[0]['amount_total'] if so_groups and so_groups[0].get('amount_total') else 0.0
+        active_deals_count = self.env['sale.order'].search_count(domain_active_deals)
+        active_deals = self.env['sale.order'].search(domain_active_deals)
+        pipeline_value = sum(active_deals.mapped('amount_total'))
 
         # High Risk Deals
         high_risk_domain = domain_active_deals + [('risk_level', '=', 'high')]
@@ -207,13 +203,9 @@ class DealFlowDashboard(models.AbstractModel):
         domain_active_deals = [('state', 'in', ['draft', 'sent', 'sale']), ('company_id', 'in', company_ids)]
 
         # 1. KPIs
-        so_groups = self.env['sale.order'].read_group(
-            domain=domain_active_deals,
-            fields=['amount_total:sum'],
-            groupby=[]
-        )
-        team_active_deals = so_groups[0]['__count'] if so_groups else 0
-        pipeline_value = so_groups[0]['amount_total'] if so_groups and so_groups[0].get('amount_total') else 0.0
+        team_active_deals = self.env['sale.order'].search_count(domain_active_deals)
+        active_deals = self.env['sale.order'].search(domain_active_deals)
+        pipeline_value = sum(active_deals.mapped('amount_total'))
 
         # High Risk Deals (MUST strictly use risk_level == 'high')
         high_risk_count = self.env['sale.order'].search_count(

@@ -17,3 +17,9 @@ access_dealflow_fulfillment_plan_manager,dealflow.fulfillment.plan.manager,model
 access_dealflow_fulfillment_plan_user,dealflow.fulfillment.plan.user,model_dealflow_fulfillment_plan,base.group_user,1,1,0,0
 access_dealflow_fulfillment_allocation_manager,dealflow.fulfillment.allocation.manager,model_dealflow_fulfillment_allocation,dealflow360.group_dealflow_manager,1,1,1,1
 access_dealflow_fulfillment_allocation_user,dealflow.fulfillment.allocation.user,model_dealflow_fulfillment_allocation,base.group_user,1,1,0,0
+access_dealflow_negotiation_portal,dealflow.negotiation.portal,model_dealflow_negotiation,base.group_portal,1,0,1,0
+access_dealflow_negotiation_line_portal,dealflow.negotiation.line.portal,model_dealflow_negotiation_line,base.group_portal,1,0,1,0
+access_dealflow_negotiation_user,dealflow.negotiation.user,model_dealflow_negotiation,base.group_user,1,1,1,0
+access_dealflow_negotiation_line_user,dealflow.negotiation.line.user,model_dealflow_negotiation_line,base.group_user,1,1,1,0
+access_dealflow_negotiation_manager,dealflow.negotiation.manager,model_dealflow_negotiation,dealflow360.group_dealflow_manager,1,1,1,1
+access_dealflow_negotiation_line_manager,dealflow.negotiation.line.manager,model_dealflow_negotiation_line,dealflow360.group_dealflow_manager,1,1,1,1

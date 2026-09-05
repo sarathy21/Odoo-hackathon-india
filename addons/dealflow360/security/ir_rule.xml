@@ -35,4 +35,34 @@
         <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
         <field name="groups" eval="[(4, ref('base.group_user'))]"/>
     </record>
+
+    <!-- Multi-company record rule for Negotiation -->
+    <record id="dealflow_negotiation_company_rule" model="ir.rule">
+        <field name="name">DealFlow Negotiation: multi-company</field>
+        <field name="model_id" ref="model_dealflow_negotiation"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <record id="dealflow_negotiation_line_company_rule" model="ir.rule">
+        <field name="name">DealFlow Negotiation Line: multi-company</field>
+        <field name="model_id" ref="model_dealflow_negotiation_line"/>
+        <field name="domain_force">['|', ('negotiation_id.company_id', '=', False), ('negotiation_id.company_id', 'in', company_ids)]</field>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+    <!-- Portal record rule for Negotiation partner isolation -->
+    <record id="dealflow_negotiation_portal_rule" model="ir.rule">
+        <field name="name">DealFlow Negotiation: portal partner isolation</field>
+        <field name="model_id" ref="model_dealflow_negotiation"/>
+        <field name="domain_force">[('partner_id.commercial_partner_id', '=', user.partner_id.commercial_partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+
+    <record id="dealflow_negotiation_line_portal_rule" model="ir.rule">
+        <field name="name">DealFlow Negotiation Line: portal partner isolation</field>
+        <field name="model_id" ref="model_dealflow_negotiation_line"/>
+        <field name="domain_force">[('negotiation_id.partner_id.commercial_partner_id', '=', user.partner_id.commercial_partner_id.id)]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
 </odoo>
