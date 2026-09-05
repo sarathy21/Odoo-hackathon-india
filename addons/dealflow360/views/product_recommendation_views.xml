@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dealflow_product_recommendation_list" model="ir.ui.view">
+        <field name="name">dealflow.product.recommendation.list</field>
+        <field name="model">dealflow.product.recommendation</field>
+        <field name="arch" type="xml">
+            <list string="Product Recommendations">
+                <field name="source_product_id"/>
+                <field name="recommended_product_id"/>
+                <field name="recommendation_type"/>
+                <field name="priority"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_dealflow_product_recommendation_form" model="ir.ui.view">
+        <field name="name">dealflow.product.recommendation.form</field>
+        <field name="model">dealflow.product.recommendation</field>
+        <field name="arch" type="xml">
+            <form string="Product Recommendation">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="source_product_id"/>
+                            <field name="recommended_product_id"/>
+                            <field name="recommendation_type"/>
+                        </group>
+                        <group>
+                            <field name="priority"/>
+                            <field name="active" widget="boolean_toggle"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="reason"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dealflow_product_recommendation_search" model="ir.ui.view">
+        <field name="name">dealflow.product.recommendation.search</field>
+        <field name="model">dealflow.product.recommendation</field>
+        <field name="arch" type="xml">
+            <search string="Product Recommendations">
+                <field name="source_product_id"/>
+                <field name="recommended_product_id"/>
+                <field name="recommendation_type"/>
+                <separator/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <separator/>
+                <filter string="Source Product" name="group_by_source" context="{'group_by': 'source_product_id'}"/>
+                <filter string="Type" name="group_by_type" context="{'group_by': 'recommendation_type'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_dealflow_product_recommendation" model="ir.actions.act_window">
+        <field name="name">Product Recommendations</field>
+        <field name="res_model">dealflow.product.recommendation</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_dealflow_product_recommendation_search"/>
+        <field name="context">{'search_default_group_by_source': 1}</field>
+    </record>
+
+    <menuitem id="menu_dealflow_product_recommendation"
+              name="Product Recommendations"
+              parent="menu_dealflow360_config"
+              action="action_dealflow_product_recommendation"
+              sequence="40"/>
+</odoo>

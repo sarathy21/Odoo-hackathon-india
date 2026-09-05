@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Overarching Approval Form -->
+    <record id="view_dealflow_approval_form" model="ir.ui.view">
+        <field name="name">dealflow.approval.form</field>
+        <field name="model">dealflow.approval</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <header>
+                    <field name="status" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="order_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Steps">
+                            <field name="step_ids" readonly="1">
+                                <list decoration-success="status=='approved'" decoration-danger="status=='rejected'" decoration-warning="status=='pending'">
+                                    <field name="sequence"/>
+                                    <field name="rule_id"/>
+                                    <field name="group_id"/>
+                                    <field name="status"/>
+                                    <field name="approver_id"/>
+                                    <button name="action_approve" type="object" string="Approve" class="btn-success" invisible="status != 'pending'"/>
+                                    <button name="action_reject" type="object" string="Reject" class="btn-danger" invisible="status != 'pending'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_dealflow_approval_list" model="ir.ui.view">
+        <field name="name">dealflow.approval.list</field>
+        <field name="model">dealflow.approval</field>
+        <field name="arch" type="xml">
+            <list create="0" decoration-success="status=='approved'" decoration-danger="status=='rejected'" decoration-warning="status=='pending'" decoration-muted="status=='stale'">
+                <field name="name"/>
+                <field name="order_id"/>
+                <field name="status"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_dealflow_approval" model="ir.actions.act_window">
+        <field name="name">Active Approvals</field>
+        <field name="res_model">dealflow.approval</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_dealflow360_approvals"
+              name="Approvals"
+              parent="menu_dealflow360_root"
+              action="action_dealflow_approval"
+              sequence="20"/>
+              
+    <!-- Audit Log -->
+    <record id="view_dealflow_approval_log_list" model="ir.ui.view">
+        <field name="name">dealflow.approval.log.list</field>
+        <field name="model">dealflow.approval.log</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0">
+                <field name="timestamp"/>
+                <field name="order_id"/>
+                <field name="user_id"/>
+                <field name="action"/>
+                <field name="old_status"/>
+                <field name="new_status"/>
+                <field name="reason"/>
+            </list>
+        </field>
+    </record>
+    
+    <record id="action_dealflow_approval_log" model="ir.actions.act_window">
+        <field name="name">Audit Logs</field>
+        <field name="res_model">dealflow.approval.log</field>
+        <field name="view_mode">list</field>
+    </record>
+    
+    <menuitem id="menu_dealflow360_logs"
+              name="Audit Logs"
+              parent="menu_dealflow360_root"
+              action="action_dealflow_approval_log"
+              sequence="50"/>
+</odoo>

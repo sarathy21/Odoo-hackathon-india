@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Root Menu -->
+    <menuitem id="menu_dealflow360_root"
+              name="DealFlow360"
+              web_icon="dealflow360,static/description/icon.png"
+              groups="dealflow360.group_dealflow_manager,sales_team.group_sale_salesman"
+              sequence="50"/>
+
+    <!-- Client Action for Command Center -->
+    <record id="action_dealflow_command_center" model="ir.actions.client">
+        <field name="name">DealFlow360 Command Center</field>
+        <field name="tag">dealflow_command_center</field>
+    </record>
+
+    <!-- Command Center Menu -->
+    <menuitem id="menu_dealflow360_command_center"
+              name="Command Center"
+              parent="menu_dealflow360_root"
+              action="action_dealflow_command_center"
+              groups="dealflow360.group_dealflow_manager"
+              sequence="10"/>
+
+    <!-- Client Action for Sales Representative Workspace -->
+    <record id="action_dealflow_sales_rep_workspace" model="ir.actions.client">
+        <field name="name">Sales Representative Workspace</field>
+        <field name="tag">dealflow_sales_rep_workspace</field>
+    </record>
+
+    <!-- Sales Representative Workspace Menu -->
+    <menuitem id="menu_dealflow360_sales_workspace"
+              name="Sales Workspace"
+              parent="menu_dealflow360_root"
+              action="action_dealflow_sales_rep_workspace"
+              groups="sales_team.group_sale_salesman"
+              sequence="15"/>
+
+    <!-- Deals Menu (Points to native Odoo quotations) -->
+    <record id="action_dealflow_deals" model="ir.actions.act_window">
+        <field name="name">Deals</field>
+        <field name="res_model">sale.order</field>
+        <field name="view_mode">list,form,kanban,activity</field>
+        <field name="domain">[('state', 'in', ['draft', 'sent', 'sale'])]</field>
+    </record>
+
+    <menuitem id="menu_dealflow360_deals"
+              name="Deals"
+              parent="menu_dealflow360_root"
+              action="action_dealflow_deals"
+              sequence="20"/>
+
+    <!-- Approvals Menu -->
+    <menuitem id="menu_dealflow360_approvals"
+              name="Approvals"
+              parent="menu_dealflow360_root"
+              action="action_dealflow_approval"
+              sequence="30"/>
+
+    <!-- Recommendations Menu -->
+    <menuitem id="menu_dealflow360_recommendations"
+              name="Recommendations"
+              parent="menu_dealflow360_root"
+              action="action_dealflow_product_recommendation"
+              sequence="40"/>
+
+    <!-- Configuration Menu -->
+    <menuitem id="menu_dealflow360_config"
+              name="Configuration"
+              parent="menu_dealflow360_root"
+              groups="dealflow360.group_dealflow_manager"
+              sequence="100"/>
+
+    <!-- Discount Rules Action Menu -->
+    <menuitem id="menu_dealflow360_discount_rule"
+              name="Discount Rules"
+              parent="menu_dealflow360_config"
+              action="action_dealflow_discount_rule"
+              sequence="10"/>
+
+    <!-- Customer Tiers Action Menu -->
+    <menuitem id="menu_dealflow360_customer_tier"
+              name="Customer Tiers"
+              parent="menu_dealflow360_config"
+              action="action_dealflow_customer_tier"
+              sequence="20"/>
+</odoo>
