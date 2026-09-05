@@ -85,6 +85,17 @@ export class DealFlowCommandCenter extends Component {
         });
     }
 
+    openCustomerNegotiations() {
+        this.action.doAction({
+            type: 'ir.actions.act_window',
+            name: 'Customer Negotiations',
+            res_model: 'dealflow.negotiation',
+            view_mode: 'list,form',
+            views: [[false, 'list'], [false, 'form']],
+            domain: [['state', 'in', ['submitted', 'under_review']]],
+        });
+    }
+
     openRecommendationRules() {
         this.action.doAction({
             type: 'ir.actions.act_window',

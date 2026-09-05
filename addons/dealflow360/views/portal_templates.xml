@@ -5,6 +5,56 @@
             <div id="dealflow_negotiation_portal_container" class="mb-4" t-att-data-order-id="sale_order.id" t-att-data-access-token="sale_order.access_token">
                 <!-- Dynamically populated by DealFlow360 Portal JavaScript -->
             </div>
+            
+            <!-- Hide native introduction to make it cleaner -->
+            <style>
+                #introduction { display: none !important; }
+                .o_portal_sale_sidebar { margin-top: 2rem; }
+            </style>
+        </xpath>
+    </template>
+    
+    <!-- Override My Quotations list for premium look -->
+    <template id="portal_my_quotations_dealflow" inherit_id="sale.portal_my_quotations">
+        <!-- Replace Header -->
+        <xpath expr="//t[@t-call='portal.portal_searchbar']" position="before">
+            <div class="mb-5 mt-4 text-center">
+                <h5 class="text-uppercase text-muted fw-bold tracking-wide mb-2" style="letter-spacing: 2px;">DealFlow360</h5>
+                <h1 class="display-5 fw-bold text-dark mb-2">Welcome Back</h1>
+                <p class="text-secondary fs-5 mb-0">Your business quotations</p>
+            </div>
+        </xpath>
+        
+        <!-- Replace Table with Cards -->
+        <xpath expr="//t[@t-call='portal.portal_table']" position="replace">
+            <div t-if="quotations" class="row row-cols-1 row-cols-md-2 g-4 mb-5">
+                <t t-foreach="quotations" t-as="quotation">
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm rounded-4" style="background: linear-gradient(145deg, #ffffff, #f8f9fa); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 10px 20px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 0.125rem 0.25rem rgba(0,0,0,0.075)';">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h5 class="fw-bold text-dark mb-1">Quotation <t t-esc="quotation.name"/></h5>
+                                        <h6 class="text-secondary mb-0"><t t-esc="quotation.partner_id.name"/></h6>
+                                    </div>
+                                    <span t-attf-class="badge rounded-1 px-3 py-2 fw-bold text-uppercase {{ quotation.state == 'draft' ? 'text-primary bg-primary-subtle' : 'text-secondary bg-secondary-subtle' }}" t-esc="quotation.state == 'draft' ? 'Awaiting Your Response' : quotation.state"/>
+                                </div>
+                                <p class="text-muted small fw-semibold mb-4"><i class="fa fa-cube me-1"></i> <t t-esc="len(quotation.order_line)"/> Products</p>
+                                
+                                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                    <div>
+                                        <span class="text-muted small d-block mb-1">Total Amount</span>
+                                        <h5 class="fw-bold text-dark mb-0">
+                                            <span t-field="quotation.amount_total" t-options='{"widget": "monetary", "display_currency": quotation.pricelist_id.currency_id}'/>
+                                        </h5>
+                                    </div>
+                                    <a t-att-href="quotation.get_portal_url()" class="btn btn-outline-primary rounded-pill px-4 fw-bold">View Quotation</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </div>
         </xpath>
     </template>
 </odoo>

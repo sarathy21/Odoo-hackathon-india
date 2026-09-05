@@ -42,23 +42,16 @@
                         </h1>
                     </div>
                     <group>
-                        <group>
-                            <field name="order_id"/>
-                            <field name="partner_id"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                        <group string="Deal Details">
+                            <field name="order_id" string="Quotation"/>
+                            <field name="partner_id" string="Customer"/>
+                            <field name="company_id" groups="base.group_multi_company" invisible="1"/>
                         </group>
-                        <group>
-                            <field name="requested_by"/>
+                        <group string="Negotiation Info">
                             <field name="requested_date"/>
-                            <field name="processed_by" invisible="state not in ('accepted', 'rejected')"/>
-                            <field name="processed_date" invisible="state not in ('accepted', 'rejected')"/>
+                            <field name="reason" string="Customer Message" invisible="not reason" class="fw-bold text-dark"/>
+                            <field name="rejection_reason" invisible="state != 'rejected'"/>
                         </group>
-                    </group>
-                    <group>
-                        <field name="reason" invisible="not reason"/>
-                        <field name="rejection_reason" invisible="state != 'rejected'"/>
-                        <field name="customer_note" invisible="not customer_note"/>
-                        <field name="sales_note"/>
                     </group>
                     <notebook>
                         <page string="Requested Commercial Terms" name="requested_terms">
@@ -94,7 +87,7 @@
                                 </form>
                             </field>
                         </page>
-                        <page string="Internal Information" name="internal_info">
+                        <page string="Internal Information" name="internal_info" invisible="1">
                             <group>
                                 <field name="base_commercial_revision"/>
                                 <field name="applied_commercial_revision" invisible="not applied_commercial_revision"/>

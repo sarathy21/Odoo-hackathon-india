@@ -24,19 +24,43 @@
             </xpath>
             
             <xpath expr="//group[@name='sale_header']" position="after">
-                <group string="DealFlow360 Intelligence" name="dealflow_risk" invisible="risk_score == 0">
-                    <group>
-                        <field name="risk_score" widget="progressbar"/>
-                        <field name="risk_level" widget="badge" decoration-danger="risk_level == 'high'" decoration-warning="risk_level == 'medium'" decoration-success="risk_level == 'low'"/>
-                        <field name="approval_required" widget="boolean_toggle"/>
-                        <field name="approval_status" widget="badge" decoration-success="approval_status == 'approved'" decoration-warning="approval_status == 'pending'" decoration-danger="approval_status == 'rejected'" decoration-muted="approval_status == 'none'"/>
-                    </group>
-                    <group>
-                        <field name="dealflow_weighted_excess"/>
-                        <field name="dealflow_risky_line_count"/>
-                        <field name="dealflow_largest_excess"/>
-                        <field name="last_risk_evaluation"/>
-                    </group>
+                <div class="card border-0 shadow-sm mb-4 mt-3" invisible="risk_score == 0" style="background: #f4f6f9; border-radius: 8px; overflow: hidden;">
+                    <div class="card-header bg-primary text-white py-3 border-0 d-flex align-items-center">
+                        <i class="fa fa-shield fa-lg me-2"></i>
+                        <h5 class="mb-0 fw-bold" style="letter-spacing: 1px;">DEAL HEALTH</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row align-items-center text-center">
+                            <div class="col-6 border-end">
+                                <h6 class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.8rem;">Risk Level</h6>
+                                <h4 class="mb-0"><field name="risk_level" widget="badge" decoration-danger="risk_level == 'high'" decoration-warning="risk_level == 'medium'" decoration-success="risk_level == 'low'" nolabel="1"/></h4>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-uppercase text-muted fw-bold mb-2" style="font-size: 0.8rem;">Approval Status</h6>
+                                <h4 class="mb-0"><field name="approval_status" widget="badge" decoration-success="approval_status == 'approved'" decoration-warning="approval_status == 'pending'" decoration-danger="approval_status == 'rejected'" decoration-muted="approval_status == 'none'" nolabel="1"/></h4>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 p-3 bg-white rounded border border-warning" invisible="risk_level == 'low' and approval_status != 'pending'">
+                            <h6 class="text-uppercase text-warning fw-bold mb-2" style="font-size: 0.85rem;"><i class="fa fa-exclamation-triangle me-1"></i> WHY ATTENTION IS NEEDED</h6>
+                            <p class="mb-0 text-dark" style="font-size: 0.95rem;">
+                                <span invisible="dealflow_risky_line_count == 0" class="d-block mb-1">
+                                    <i class="fa fa-caret-right me-1 text-muted"></i> This deal has <field name="dealflow_risky_line_count" nolabel="1" class="fw-bold text-danger"/> line(s) exceeding allowed discount limits.
+                                </span>
+                                <span invisible="approval_status != 'pending'" class="d-block">
+                                    <i class="fa fa-caret-right me-1 text-muted"></i> Approval has been requested and is currently pending review by a manager.
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <group name="dealflow_tech_hidden" invisible="1">
+                    <field name="risk_score"/>
+                    <field name="approval_required"/>
+                    <field name="dealflow_weighted_excess"/>
+                    <field name="dealflow_largest_excess"/>
+                    <field name="last_risk_evaluation"/>
                 </group>
             </xpath>
         </field>

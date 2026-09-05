@@ -136,3 +136,17 @@
     font-weight: bold;
     margin: 0 0.25rem;
 }
+
+/* Simplification of Customer Navigation (Hiding unrelated Odoo elements) */
+#top_menu > li:not(.o_no_autohide_item) > a:not([href="/my/home"]):not([href="/my/quotes"]):not([href="/my/account"]):not([href="/"]) {
+    display: none !important;
+}
+
+/* Premium Typography overrides for Portal */
+#dealflow_negotiation_portal_container {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+#dealflow_negotiation_portal_container .card {
+    transition: all 0.3s ease;
+}

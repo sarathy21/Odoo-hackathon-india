@@ -7,33 +7,29 @@
         <field name="arch" type="xml">
             <form create="0">
                 <header>
-                    <field name="status" widget="statusbar"/>
+                    <button name="action_approve_current_step" type="object" string="Approve" class="btn-primary" invisible="status != 'pending'"/>
+                    <button name="action_reject_current_step" type="object" string="Reject" class="btn-danger" invisible="status != 'pending'"/>
+                    <field name="status" widget="statusbar" statusbar_visible="draft,pending,approved,rejected"/>
                 </header>
                 <sheet>
                     <div class="oe_title">
                         <h1><field name="name"/></h1>
                     </div>
                     <group>
-                        <group>
-                            <field name="order_id"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
+                        <group string="Deal Details">
+                            <field name="order_id" string="Quotation"/>
+                            <field name="company_id" groups="base.group_multi_company" invisible="1"/>
                         </group>
-                    </group>
-                    <notebook>
-                        <page string="Steps">
-                            <field name="step_ids" readonly="1">
+                        <group string="Approval Steps">
+                            <field name="step_ids" nolabel="1" readonly="1">
                                 <list decoration-success="status=='approved'" decoration-danger="status=='rejected'" decoration-warning="status=='pending'">
-                                    <field name="sequence"/>
-                                    <field name="rule_id"/>
-                                    <field name="group_id"/>
+                                    <field name="rule_id" string="Rule"/>
                                     <field name="status"/>
-                                    <field name="approver_id"/>
-                                    <button name="action_approve" type="object" string="Approve" class="btn-success" invisible="status != 'pending'"/>
-                                    <button name="action_reject" type="object" string="Reject" class="btn-danger" invisible="status != 'pending'"/>
+                                    <field name="approver_id" optional="show"/>
                                 </list>
                             </field>
-                        </page>
-                    </notebook>
+                        </group>
+                    </group>
                 </sheet>
             </form>
         </field>
@@ -44,9 +40,8 @@
         <field name="model">dealflow.approval</field>
         <field name="arch" type="xml">
             <list create="0" decoration-success="status=='approved'" decoration-danger="status=='rejected'" decoration-warning="status=='pending'" decoration-muted="status=='stale'">
-                <field name="name"/>
-                <field name="order_id"/>
-                <field name="status"/>
+                <field name="order_id" string="Quotation"/>
+                <field name="status" widget="badge" decoration-success="status=='approved'" decoration-warning="status=='pending'" decoration-danger="status=='rejected'"/>
             </list>
         </field>
     </record>

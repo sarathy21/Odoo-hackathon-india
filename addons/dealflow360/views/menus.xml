@@ -62,44 +62,15 @@
               name="Approvals"
               parent="menu_dealflow360_root"
               action="action_dealflow_approval"
+              groups="dealflow360.group_dealflow_manager"
               sequence="30"/>
 
-    <!-- Fulfillment Plans Action Menu -->
+    <!-- Fulfillment Plans Action Menu (Moved to Config) -->
     <record id="action_dealflow_fulfillment_plan" model="ir.actions.act_window">
         <field name="name">Fulfillment Plans</field>
         <field name="res_model">dealflow.fulfillment.plan</field>
         <field name="view_mode">list,form</field>
     </record>
-
-    <menuitem id="menu_dealflow360_fulfillment_plans"
-              name="Fulfillment Plans"
-              parent="menu_dealflow360_root"
-              action="action_dealflow_fulfillment_plan"
-              sequence="35"/>
-
-    <!-- Deal Monitoring Menu -->
-    <menuitem id="menu_dealflow360_monitoring"
-              name="Deal Monitoring"
-              parent="menu_dealflow360_root"
-              sequence="45"/>
-
-    <menuitem id="menu_dealflow360_deal_health"
-              name="Deal Health"
-              parent="menu_dealflow360_monitoring"
-              action="action_dealflow_deal_health"
-              sequence="10"/>
-
-    <menuitem id="menu_dealflow360_anomalies"
-              name="Anomalies"
-              parent="menu_dealflow360_monitoring"
-              action="action_dealflow_anomaly"
-              sequence="20"/>
-
-    <menuitem id="menu_dealflow360_logs"
-              name="Audit Logs"
-              parent="menu_dealflow360_monitoring"
-              action="action_dealflow_approval_log"
-              sequence="30"/>
 
     <!-- Configuration Menu -->
     <menuitem id="menu_dealflow360_config"
@@ -107,6 +78,37 @@
               parent="menu_dealflow360_root"
               groups="dealflow360.group_dealflow_manager"
               sequence="100"/>
+
+    <menuitem id="menu_dealflow360_monitoring"
+              name="Technical &amp; Monitoring"
+              parent="menu_dealflow360_config"
+              sequence="90"/>
+
+    <menuitem id="menu_dealflow360_fulfillment_plans"
+              name="Fulfillment Plans"
+              parent="menu_dealflow360_monitoring"
+              action="action_dealflow_fulfillment_plan"
+              sequence="10"/>
+
+    <menuitem id="menu_dealflow360_deal_health"
+              name="Deal Health"
+              parent="menu_dealflow360_monitoring"
+              action="action_dealflow_deal_health"
+              sequence="20"/>
+
+    <menuitem id="menu_dealflow360_anomalies"
+              name="Anomalies"
+              parent="menu_dealflow360_monitoring"
+              action="action_dealflow_anomaly"
+              sequence="30"/>
+
+    <menuitem id="menu_dealflow360_logs"
+              name="Audit Logs"
+              parent="menu_dealflow360_monitoring"
+              action="action_dealflow_approval_log"
+              sequence="40"/>
+
+
 
     <menuitem id="menu_dealflow360_customer_tier"
               name="Customer Tiers"
