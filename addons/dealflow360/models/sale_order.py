@@ -15,7 +15,7 @@ class SaleOrder(models.Model):
         ('medium', 'Medium'),
         ('high', 'High')
     ], string='Risk Level', compute='_compute_dealflow_risk_score', store=True)
-    
+
     approval_required = fields.Boolean(string='Approval Required', compute='_compute_approval_required', store=False)
     approval_status = fields.Selection([
         ('none', 'No Approval Needed'),
@@ -23,13 +23,18 @@ class SaleOrder(models.Model):
         ('approved', 'Approved'),
         ('rejected', 'Rejected')
     ], string='Approval Status', default='none', tracking=True)
-    
+
     last_risk_evaluation = fields.Datetime(string='Last Risk Evaluation', compute='_compute_dealflow_risk_score', store=True)
-    
+
     # Snapshot / Invalidation Fields
     dealflow_commercial_revision = fields.Integer(string='Commercial Revision', default=1, copy=False)
     dealflow_approved_risk_score = fields.Float(string='Approved Risk Score', copy=False)
     dealflow_approved_revision = fields.Integer(string='Approved Revision', copy=False)
+
+    dealflow_recommendation_data = fields.Json(
+        string='Recommendation Data',
+        compute='_compute_recommendation_data'
+    )
 
     @api.depends('order_line.discount_excess', 'order_line.price_unit', 'order_line.product_uom_qty', 'partner_id', 'company_id')
     def _compute_dealflow_risk_score(self):
@@ -38,7 +43,7 @@ class SaleOrder(models.Model):
             total_weighted_excess = 0.0
             risky_count = 0
             largest_excess = 0.0
-            
+
             for line in order.order_line:
                 if line.display_type:
                     continue
@@ -49,31 +54,31 @@ class SaleOrder(models.Model):
                     total_weighted_excess += line.discount_excess * undiscounted
                     if line.discount_excess > largest_excess:
                         largest_excess = line.discount_excess
-            
+
             w = (total_weighted_excess / total_undiscounted) if total_undiscounted > 0 else 0.0
             b = w * 2.0
             p = largest_excess * 1.0
-            
+
             line_count = len([l for l in order.order_line if not l.display_type])
             proportion = (risky_count / line_count) if line_count > 0 else 0.0
-            
+
             m = 1.0 + (proportion * 0.25) + (min(risky_count, 10) * 0.025)
-            
+
             raw_score = (b + p) * m
             final_score = min(100.0, max(0.0, raw_score))
-            
+
             order.dealflow_weighted_excess = w
             order.dealflow_risky_line_count = risky_count
             order.dealflow_largest_excess = largest_excess
             order.risk_score = final_score
-            
+
             if final_score <= 20.0:
                 order.risk_level = 'low'
             elif final_score <= 60.0:
                 order.risk_level = 'medium'
             else:
                 order.risk_level = 'high'
-                
+
             # Separate approval_required compute logic
             order.last_risk_evaluation = fields.Datetime.now()
 
@@ -95,15 +100,15 @@ class SaleOrder(models.Model):
         if any(f in vals for f in material_fields):
             for order in self:
                 vals['dealflow_commercial_revision'] = order.dealflow_commercial_revision + 1
-                
+
         res = super().write(vals)
-        
+
         for order in self:
             if order.approval_status in ['approved', 'pending'] and order.dealflow_commercial_revision != order.dealflow_approved_revision:
                 order._invalidate_approval("Commercial modification invalidated previous approval.")
-                
+
         return res
-        
+
     def _invalidate_approval(self, reason):
         for order in self:
             active_approvals = self.env['dealflow.approval'].search([
@@ -112,10 +117,10 @@ class SaleOrder(models.Model):
             ])
             if active_approvals:
                 active_approvals.sudo().write({'status': 'stale'})
-            
+
             old_status = order.approval_status
             order.approval_status = 'none'
-            
+
             self.env['dealflow.approval.log'].sudo().create({
                 'order_id': order.id,
                 'user_id': self.env.user.id,
@@ -124,12 +129,12 @@ class SaleOrder(models.Model):
                 'new_status': 'none',
                 'reason': reason
             })
-            
+
     def action_request_approval(self):
         for order in self:
             if not order.approval_required:
                 continue
-                
+
             # Prevent duplicates
             active = self.env['dealflow.approval'].search_count([
                 ('order_id', '=', order.id),
@@ -137,7 +142,7 @@ class SaleOrder(models.Model):
             ])
             if active > 0:
                 continue
-                
+
             # Find rules
             tier_id = order.partner_id.dealflow_tier_id.id
             # Find rules with exact sequencing
@@ -148,25 +153,25 @@ class SaleOrder(models.Model):
                 '|', ('tier_ids', '=', False), ('tier_ids', 'in', [tier_id] if tier_id else [])
             ]
             rules = self.env['dealflow.approval.rule'].search(domain, order='sequence, id')
-            
+
             if rules:
                 approval = self.env['dealflow.approval'].sudo().create({
                     'order_id': order.id,
                     'status': 'pending'
                 })
-                
+
                 for rule in rules:
                     self.env['dealflow.approval.step'].sudo().create({
                         'approval_id': approval.id,
                         'rule_id': rule.id
                     })
-                    
+
                 order.write({
                     'approval_status': 'pending',
                     'dealflow_approved_risk_score': order.risk_score,
                     'dealflow_approved_revision': order.dealflow_commercial_revision
                 })
-                
+
                 self.env['dealflow.approval.log'].sudo().create({
                     'order_id': order.id,
                     'user_id': self.env.user.id,
@@ -175,3 +180,81 @@ class SaleOrder(models.Model):
                     'new_status': 'pending',
                     'reason': "Approval requested."
                 })
+
+    @api.depends('order_line.product_id', 'pricelist_id', 'currency_id', 'company_id')
+    def _compute_recommendation_data(self):
+        for order in self:
+            if not order.order_line:
+                order.dealflow_recommendation_data = []
+                continue
+
+            existing_product_ids = [line.product_id.id for line in order.order_line if not line.display_type and line.product_id]
+            if not existing_product_ids:
+                order.dealflow_recommendation_data = []
+                continue
+
+            domain = [
+                ('source_product_id', 'in', existing_product_ids),
+                ('active', '=', True),
+                ('company_id', '=', order.company_id.id)
+            ]
+            recs = self.env['dealflow.product.recommendation'].search(domain, order='priority desc, recommendation_type, recommended_product_id')
+
+            seen_recommended = set(existing_product_ids)
+            final_recs = []
+
+            for rec in recs:
+                if rec.recommended_product_id.id in seen_recommended:
+                    continue
+                seen_recommended.add(rec.recommended_product_id.id)
+
+                product = rec.recommended_product_id
+                cost = product.standard_price
+
+                sale_price = 0.0
+                if order.pricelist_id:
+                    try:
+                        sale_price = order.pricelist_id._get_product_price(product, 1.0, order.partner_id)
+                    except AttributeError:
+                        sale_price = product.lst_price
+                else:
+                    sale_price = product.lst_price
+
+                revenue = sale_price
+                margin = revenue - cost
+
+                final_recs.append({
+                    'id': rec.id,
+                    'product_id': product.id,
+                    'product_name': product.display_name,
+                    'type': rec.recommendation_type,
+                    'type_label': 'Upsell' if rec.recommendation_type == 'upsell' else 'Cross-sell',
+                    'reason': rec.reason or '',
+                    'revenue': round(revenue, 2),
+                    'margin': round(margin, 2),
+                    'currency_symbol': order.currency_id.symbol or ''
+                })
+
+            order.dealflow_recommendation_data = final_recs
+
+    def action_add_dealflow_recommendation(self, product_id):
+        self.ensure_one()
+        from odoo.exceptions import UserError
+
+        if self.state not in ['draft', 'sent']:
+            raise UserError("You can only add recommendations to quotations.")
+
+        product = self.env['product.product'].browse(product_id)
+        if not product.exists():
+            return {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'message': "Product not found.", 'type': 'danger'}}
+
+        existing = any(line.product_id.id == product.id for line in self.order_line if not line.display_type)
+        if existing:
+            return {'type': 'ir.actions.client', 'tag': 'display_notification', 'params': {'message': "Product already on quotation.", 'type': 'warning'}}
+
+        self.env['sale.order.line'].create({
+            'order_id': self.id,
+            'product_id': product.id,
+        })
+
+        return {'type': 'ir.actions.client', 'tag': 'reload'}

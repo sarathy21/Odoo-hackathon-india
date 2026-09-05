@@ -11,3 +11,5 @@ access_dealflow_approval_step_user,dealflow.approval.step.user,model_dealflow_ap
 access_dealflow_approval_step_manager,dealflow.approval.step.manager,model_dealflow_approval_step,dealflow360.group_dealflow_manager,1,1,1,1
 access_dealflow_approval_log_user,dealflow.approval.log.user,model_dealflow_approval_log,base.group_user,1,0,1,0
 access_dealflow_approval_log_manager,dealflow.approval.log.manager,model_dealflow_approval_log,dealflow360.group_dealflow_manager,1,0,1,0
+access_dealflow_product_recommendation_user,dealflow.product.recommendation.user,model_dealflow_product_recommendation,base.group_user,1,0,0,0
+access_dealflow_product_recommendation_manager,dealflow.product.recommendation.manager,model_dealflow_product_recommendation,dealflow360.group_dealflow_manager,1,1,1,1

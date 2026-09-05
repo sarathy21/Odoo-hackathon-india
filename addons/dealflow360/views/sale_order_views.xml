@@ -11,6 +11,11 @@
                 <field name="discount_excess" optional="show"/>
                 <field name="risk_flag" widget="boolean_toggle" readonly="1" optional="show"/>
             </xpath>
+
+            <!-- Smart Recommendations Panel -->
+            <xpath expr="//field[@name='order_line']" position="before">
+                <field name="dealflow_recommendation_data" widget="dealflow_recommendations" nolabel="1" colspan="4"/>
+            </xpath>
             
             <!-- Add Phase 3 Risk Score and Buttons -->
             <xpath expr="//header" position="inside">
