@@ -3,3 +3,11 @@ access_dealflow_customer_tier_user,dealflow.customer.tier.user,model_dealflow_cu
 access_dealflow_customer_tier_manager,dealflow.customer.tier.manager,model_dealflow_customer_tier,dealflow360.group_dealflow_manager,1,1,1,1
 access_dealflow_discount_rule_user,dealflow.discount.rule.user,model_dealflow_discount_rule,base.group_user,1,0,0,0
 access_dealflow_discount_rule_manager,dealflow.discount.rule.manager,model_dealflow_discount_rule,dealflow360.group_dealflow_manager,1,1,1,1
+access_dealflow_approval_rule_user,dealflow.approval.rule.user,model_dealflow_approval_rule,base.group_user,1,0,0,0
+access_dealflow_approval_rule_manager,dealflow.approval.rule.manager,model_dealflow_approval_rule,dealflow360.group_dealflow_manager,1,1,1,1
+access_dealflow_approval_user,dealflow.approval.user,model_dealflow_approval,base.group_user,1,0,0,0
+access_dealflow_approval_manager,dealflow.approval.manager,model_dealflow_approval,dealflow360.group_dealflow_manager,1,1,1,1
+access_dealflow_approval_step_user,dealflow.approval.step.user,model_dealflow_approval_step,base.group_user,1,0,0,0
+access_dealflow_approval_step_manager,dealflow.approval.step.manager,model_dealflow_approval_step,dealflow360.group_dealflow_manager,1,1,1,1
+access_dealflow_approval_log_user,dealflow.approval.log.user,model_dealflow_approval_log,base.group_user,1,0,1,0
+access_dealflow_approval_log_manager,dealflow.approval.log.manager,model_dealflow_approval_log,dealflow360.group_dealflow_manager,1,0,1,0
