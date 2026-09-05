@@ -28,6 +28,10 @@
         'web.assets_backend': [
             'dealflow360/static/src/js/dealflow_recommendations_widget.js',
             'dealflow360/static/src/xml/dealflow_recommendations_widget.xml',
+            'dealflow360/static/src/js/command_center.js',
+            'dealflow360/static/src/xml/command_center.xml',
+            'dealflow360/static/src/js/sales_rep_workspace.js',
+            'dealflow360/static/src/xml/sales_rep_workspace.xml',
         ],
     },
     'demo': [],

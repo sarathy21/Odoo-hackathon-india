@@ -2,7 +2,8 @@
 <templates xml:space="preserve">
     <t t-name="dealflow360.RecommendationsWidget">
         <div class="dealflow_recommendations_panel mb-4" t-if="recommendations.length > 0">
-            <h4 class="mb-3 text-primary"><i class="fa fa-lightbulb-o me-2"/>Smart Recommendations</h4>
+            <h4 class="mb-1 text-primary"><i class="fa fa-lightbulb-o me-2"/>Smart Opportunities</h4>
+            <p class="text-muted small mb-3">Products that may increase deal value or customer fit.</p>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
                 <t t-foreach="recommendations" t-as="rec" t-key="rec.id">
                     <div class="col">
@@ -23,8 +24,13 @@
                                         <span class="fw-bold text-primary">+<t t-esc="rec.currency_symbol"/><t t-esc="rec.margin"/></span>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-primary w-100" t-on-click="() => this.onAddProduct(rec.product_id)">
-                                    <i class="fa fa-plus me-1"/> Add to Order
+                                <button type="button" class="btn btn-primary w-100" t-on-click="() => this.onAddProduct(rec.product_id)" t-att-disabled="state.addingProductId">
+                                    <t t-if="state.addingProductId === rec.product_id">
+                                        <i class="fa fa-spinner fa-spin me-1"/> Adding...
+                                    </t>
+                                    <t t-else="">
+                                        <i class="fa fa-plus me-1"/> Add to Order
+                                    </t>
                                 </button>
                             </div>
                         </div>

@@ -1,1 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_dealflow_eval" model="ir.ui.view">
+        <field name="name">sale.order.form.dealflow.eval</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Add line-level fields to the tree view inside the form -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='discount']" position="after">
+                <field name="discount_allowed" optional="show"/>
+                <field name="discount_excess" optional="show"/>
+                <field name="risk_flag" widget="boolean_toggle" readonly="1" optional="show"/>
+            </xpath>
 
+            <!-- Smart Recommendations Panel -->
+            <xpath expr="//field[@name='order_line']" position="before">
+                <field name="dealflow_recommendation_data" widget="dealflow_recommendations" nolabel="1" colspan="4"/>
+            </xpath>
+            
+            <!-- Add Phase 3 Risk Score and Buttons -->
+            <xpath expr="//header" position="inside">
+                <button name="action_request_approval" type="object" string="Request DealFlow Approval" class="btn-primary" invisible="not approval_required or approval_status != 'none'"/>
+                <field name="approval_status" widget="statusbar" statusbar_visible="none,pending,approved,rejected"/>
+            </xpath>
+            
+            <xpath expr="//group[@name='sale_header']" position="after">
+                <group string="DealFlow360 Intelligence" name="dealflow_risk" invisible="risk_score == 0">
+                    <group>
+                        <field name="risk_score" widget="progressbar"/>
+                        <field name="risk_level"/>
+                        <field name="approval_required"/>
+                        <field name="approval_status"/>
+                    </group>
+                    <group>
+                        <field name="dealflow_weighted_excess"/>
+                        <field name="dealflow_risky_line_count"/>
+                        <field name="dealflow_largest_excess"/>
+                        <field name="last_risk_evaluation"/>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

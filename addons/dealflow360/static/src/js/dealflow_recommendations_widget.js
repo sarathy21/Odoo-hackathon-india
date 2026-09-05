@@ -1,13 +1,16 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
-import { Component } from "@odoo/owl";
+import { Component, useState } from "@odoo/owl";
 import { useService } from "@web/core/utils/hooks";
 
 export class DealflowRecommendationsWidget extends Component {
     setup() {
         this.action = useService("action");
         this.orm = useService("orm");
+        this.state = useState({
+            addingProductId: null
+        });
     }
 
     get recommendations() {
@@ -27,10 +30,11 @@ export class DealflowRecommendationsWidget extends Component {
     }
 
     async onAddProduct(productId) {
-        if (!this.props.record.resId) {
-            return; // Needs to be a saved record
+        if (!this.props.record.resId || this.state.addingProductId) {
+            return; // Needs to be a saved record, or already adding
         }
         
+        this.state.addingProductId = productId;
         try {
             const result = await this.orm.call(
                 "sale.order",
@@ -44,6 +48,8 @@ export class DealflowRecommendationsWidget extends Component {
             }
         } catch (error) {
             console.error(error);
+        } finally {
+            this.state.addingProductId = null;
         }
     }
 }
