@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dealflow_fulfillment_allocation_tree" model="ir.ui.view">
+        <field name="name">dealflow.fulfillment.allocation.tree</field>
+        <field name="model">dealflow.fulfillment.allocation</field>
+        <field name="arch" type="xml">
+            <list string="Allocations" editable="bottom" create="false" delete="false">
+                <field name="product_id" readonly="1"/>
+                <field name="requested_qty" readonly="1"/>
+                <field name="warehouse_id" readonly="parent.state != 'draft'"/>
+                <field name="available_qty" readonly="1"/>
+                <field name="allocated_qty" readonly="parent.state != 'draft'"/>
+                <field name="backorder_qty" readonly="1" decoration-danger="backorder_qty &gt; 0"/>
+                <field name="shipping_cost" readonly="1"/>
+                <field name="explanation" readonly="1"/>
+                <field name="is_manual_override" readonly="1" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- We will embed this inside sale_order_views.xml instead of a separate menu -->
+</odoo>

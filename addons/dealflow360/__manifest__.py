@@ -8,7 +8,7 @@
     'author': 'DealFlow360 Team',
     'website': '',
     'license': 'LGPL-3',
-    'depends': ['base', 'product', 'sale'],
+    'depends': ['base', 'product', 'sale', 'sale_stock', 'stock'],
     'data': [
         'security/ir.model.access.csv',
         'security/ir_rule.xml',
@@ -19,6 +19,8 @@
         'views/approval_rule_views.xml',
         'views/approval_views.xml',
         'views/product_recommendation_views.xml',
+        'views/fulfillment_plan_views.xml',
+        'views/stock_warehouse_views.xml',
         'views/res_partner_views.xml',
         'views/sale_order_views.xml',
     ],

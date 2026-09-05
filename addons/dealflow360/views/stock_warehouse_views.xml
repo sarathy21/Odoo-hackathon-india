@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_dealflow_stock_warehouse_form" model="ir.ui.view">
+        <field name="name">dealflow.stock.warehouse.form</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="DealFlow Configuration" name="dealflow_config">
+                    <group>
+                        <group>
+                            <field name="dealflow_priority"/>
+                            <field name="dealflow_base_shipping_cost"/>
+                        </group>
+                    </group>
+                    <div class="text-muted mt-2">
+                        <p><strong>DealFlow Priority:</strong> Lower number = higher preference during automatic fulfillment allocation.</p>
+                        <p><strong>Base Shipping Cost:</strong> Estimated shipping cost used as a planning tie-breaker when capacity is equal.</p>
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
