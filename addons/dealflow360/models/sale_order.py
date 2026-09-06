@@ -125,8 +125,9 @@ class SaleOrder(models.Model):
         res = super().write(vals)
 
         for order in self:
-            if order.approval_status in ['approved', 'pending'] and order.dealflow_commercial_revision != order.dealflow_approved_revision:
-                order._invalidate_approval("Commercial modification invalidated previous approval.")
+            if not self.env.context.get('dealflow_applying_negotiation'):
+                if order.approval_status in ['approved', 'pending'] and order.dealflow_commercial_revision != order.dealflow_approved_revision:
+                    order._invalidate_approval("Commercial modification invalidated previous approval.")
             order._evaluate_approval_trigger()
 
             # Phase C and D integration

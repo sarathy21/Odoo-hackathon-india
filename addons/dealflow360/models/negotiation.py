@@ -43,6 +43,15 @@ class DealFlowNegotiation(models.Model):
     active = fields.Boolean(default=True)
 
     line_ids = fields.One2many('dealflow.negotiation.line', 'negotiation_id', string='Negotiation Lines')
+    
+    proposed_risk_score = fields.Float(string='Proposed Risk Score', readonly=True)
+    proposed_risk_level = fields.Selection([
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High')
+    ], string='Proposed Risk Level', readonly=True)
+    approval_required = fields.Boolean(string='Approval Required', readonly=True)
+    approval_id = fields.Many2one('dealflow.approval', string='Approval Request', readonly=True)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -54,6 +63,93 @@ class DealFlowNegotiation(models.Model):
                 if order:
                     vals['base_commercial_revision'] = order.dealflow_commercial_revision
         return super().create(vals_list)
+
+    def _compute_proposed_risk(self):
+        for neg in self:
+            order = neg.order_id
+            if not order:
+                continue
+            
+            neg_line_map = {nl.order_line_id.id: nl for nl in neg.line_ids}
+            
+            total_undiscounted = 0.0
+            total_weighted_excess = 0.0
+            risky_count = 0
+            largest_excess = 0.0
+            line_count = 0
+            
+            # Use same risk math logic as sale.order
+            for line in order.order_line:
+                if line.display_type:
+                    continue
+                line_count += 1
+                
+                nl = neg_line_map.get(line.id)
+                if nl:
+                    qty = nl.requested_quantity
+                    price = nl.requested_unit_price
+                    discount = nl.requested_discount
+                    
+                    # Compute allowed discount exactly as in sale_order_line._compute_dealflow_discount_evaluation
+                    tier_id = order.partner_id.dealflow_tier_id.id
+                    category_id = line.product_id.categ_id.id
+                    company_id = order.company_id.id
+                    
+                    allowed = 0.0
+                    if tier_id and category_id and company_id:
+                        domain = [
+                            ('tier_id', '=', tier_id),
+                            ('category_id', '=', category_id),
+                            ('company_id', '=', company_id)
+                        ]
+                        rule = self.env['dealflow.discount.rule'].search(domain, limit=1)
+                        if rule:
+                            allowed = rule.max_discount
+                            
+                    excess = max(0.0, discount - allowed)
+                else:
+                    qty = line.product_uom_qty
+                    price = line.price_unit
+                    discount = line.discount
+                    excess = line.discount_excess
+                    
+                undiscounted = price * qty
+                total_undiscounted += undiscounted
+                
+                if excess > 0:
+                    risky_count += 1
+                    total_weighted_excess += excess * undiscounted
+                    if excess > largest_excess:
+                        largest_excess = excess
+                        
+            w = (total_weighted_excess / total_undiscounted) if total_undiscounted > 0 else 0.0
+            b = w * 2.0
+            p = largest_excess * 1.0
+            proportion = (risky_count / line_count) if line_count > 0 else 0.0
+            m = 1.0 + (proportion * 0.25) + (min(risky_count, 10) * 0.025)
+            
+            raw_score = (b + p) * m
+            final_score = min(100.0, max(0.0, raw_score))
+            
+            neg.proposed_risk_score = final_score
+            
+            if final_score <= 20.0:
+                neg.proposed_risk_level = 'low'
+            elif final_score <= 60.0:
+                neg.proposed_risk_level = 'medium'
+            else:
+                neg.proposed_risk_level = 'high'
+                
+            # Check if this risk score requires approval
+            tier_id = order.partner_id.dealflow_tier_id.id
+            domain = [
+                ('min_risk_score', '<=', final_score),
+                ('max_risk_score', '>=', final_score),
+                ('company_id', '=', order.company_id.id),
+                '|', ('tier_ids', '=', False), ('tier_ids', 'in', [tier_id] if tier_id else [])
+            ]
+            rule_count = self.env['dealflow.approval.rule'].search_count(domain)
+            neg.approval_required = rule_count > 0
 
     def action_submit(self):
         for rec in self:
@@ -90,6 +186,46 @@ class DealFlowNegotiation(models.Model):
                 'state': 'submitted',
                 'requested_date': fields.Datetime.now()
             })
+            
+            # Compute proposed risk and route for approval if necessary
+            rec.sudo()._compute_proposed_risk()
+            if rec.approval_required:
+                tier_id = rec.order_id.partner_id.dealflow_tier_id.id
+                domain = [
+                    ('min_risk_score', '<=', rec.proposed_risk_score),
+                    ('max_risk_score', '>=', rec.proposed_risk_score),
+                    ('company_id', '=', rec.order_id.company_id.id),
+                    '|', ('tier_ids', '=', False), ('tier_ids', 'in', [tier_id] if tier_id else [])
+                ]
+                rules = self.env['dealflow.approval.rule'].search(domain, order='sequence, id')
+                
+                if rules:
+                    approval = self.env['dealflow.approval'].sudo().create({
+                        'order_id': rec.order_id.id,
+                        'negotiation_id': rec.id,
+                        'status': 'pending'
+                    })
+                    
+                    for rule in rules:
+                        self.env['dealflow.approval.step'].sudo().create({
+                            'approval_id': approval.id,
+                            'rule_id': rule.id
+                        })
+                        
+                    rec.sudo().write({
+                        'approval_id': approval.id,
+                        'state': 'under_review'
+                    })
+                    
+                    # Log approval request
+                    self.env['dealflow.approval.log'].sudo().create({
+                        'order_id': rec.order_id.id,
+                        'user_id': self.env.user.id,
+                        'action': 'requested',
+                        'old_status': 'none',
+                        'new_status': 'pending',
+                        'reason': "Approval requested for customer negotiation."
+                    })
 
     def action_accept(self):
         for rec in self:
@@ -99,19 +235,35 @@ class DealFlowNegotiation(models.Model):
             if not rec.order_id:
                 raise UserError("Negotiation must be linked to a valid quotation.")
 
+            if not self.env.context.get('auto_accept') and rec.approval_required and (not rec.approval_id or rec.approval_id.status != 'approved'):
+                raise UserError("This negotiation requires managerial approval and cannot be accepted manually until fully approved.")
+
             # Stale revision check
             if rec.base_commercial_revision != rec.order_id.dealflow_commercial_revision:
                 rec.sudo().write({'state': 'stale'})
                 raise UserError("Cannot accept negotiation: the quotation has undergone a commercial revision since this request was created.")
 
+            ctx = {}
+            # Only bypass invalidation if we are applying a negotiation that was just formally approved
+            if rec.approval_id and rec.approval_id.status == 'approved':
+                ctx['dealflow_applying_negotiation'] = True
+
             # Apply requested line changes natively
             for line in rec.line_ids:
                 line._validate_line_values()
-                line.order_line_id.write({
+                line.order_line_id.with_context(**ctx).write({
                     'product_uom_qty': line.requested_quantity,
                     'price_unit': line.requested_unit_price,
-                    'discount': line.requested_discount,
+                    'discount': line.requested_discount
                 })
+                
+            # Update the order's approved revision to match the new commercial revision
+            # so that future manual modifications are properly tracked
+            if rec.approval_id and rec.approval_id.status == 'approved':
+                updated_order = rec.order_id.sudo()
+                updated_order.invalidate_recordset(['dealflow_commercial_revision'])
+                new_revision = updated_order.dealflow_commercial_revision
+                updated_order.with_context(**ctx).write({'dealflow_approved_revision': new_revision})
 
             rec.sudo().write({
                 'state': 'accepted',

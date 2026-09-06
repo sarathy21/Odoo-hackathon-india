@@ -271,22 +271,15 @@ class TestManualOverlimitApproval(TransactionCase):
             })]
         })
         negotiation.action_submit()
-        self.assertEqual(negotiation.state, 'submitted')
-        self.assertEqual(order.approval_status, 'none')  # NOT auto-approved or auto-created
+        self.assertEqual(negotiation.state, 'under_review')
+        self.assertEqual(order.approval_status, 'none')
 
-        # Internal user accepts negotiation
-        negotiation.with_user(self.user_salesmgr).action_accept()
+        # Internal manager approves the step
+        approval = negotiation.approval_id
+        approval.with_user(self.user_salesmgr).action_approve_current_step()
+        
         self.assertEqual(negotiation.state, 'accepted')
         self.assertEqual(order.order_line[0].discount, 50.0)
-
-        # Confirm new pending approval created due to over-limit discount
-        approval = self.env['dealflow.approval'].search([('order_id', '=', order.id), ('status', '=', 'pending')], limit=1)
-        self.assertTrue(approval)
-        self.assertEqual(order.approval_status, 'pending')
-
-        # Manager approves pending approval
-        approval.step_ids[0].with_user(self.user_salesmgr).action_approve(reason="Accepted negotiation terms approved")
-        self.assertEqual(approval.status, 'approved')
         self.assertEqual(order.approval_status, 'approved')
 
     def test_T_customer_negotiation_rejection_flow(self):
@@ -302,15 +295,16 @@ class TestManualOverlimitApproval(TransactionCase):
             })]
         })
         negotiation.action_submit()
-        negotiation.with_user(self.user_salesmgr).action_accept()
+        self.assertEqual(negotiation.state, 'under_review')
 
-        approval = self.env['dealflow.approval'].search([('order_id', '=', order.id), ('status', '=', 'pending')], limit=1)
-        approval.step_ids[0].with_user(self.user_salesmgr).action_reject(reason="Overlimit discount rejected by manager")
+        approval = negotiation.approval_id
+        approval.with_user(self.user_salesmgr).action_reject_current_step(reason="Overlimit discount rejected by manager")
 
         self.assertEqual(approval.status, 'rejected')
         self.assertEqual(order.approval_status, 'rejected')
-        # Quotation remains at 50% discount in rejected state without automatic modification
-        self.assertEqual(order.order_line[0].discount, 50.0)
+        self.assertEqual(negotiation.state, 'rejected')
+        # Quotation remains unchanged because negotiation was rejected
+        self.assertEqual(order.order_line[0].discount, 10.0)
 
     def test_U_stale_negotiation_cannot_modify_quotation(self):
         order = self._create_quotation(discount=10.0)

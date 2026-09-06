@@ -157,8 +157,9 @@ class SaleOrderLine(models.Model):
         lines = super().create(vals_list)
         for line in lines:
             if line.order_id:
-                if line.order_id.approval_status in ['approved', 'pending'] and line.order_id.dealflow_commercial_revision != line.order_id.dealflow_approved_revision:
-                    line.order_id._invalidate_approval("Commercial modification invalidated previous approval.")
+                if not self.env.context.get('dealflow_applying_negotiation'):
+                    if line.order_id.approval_status in ['approved', 'pending'] and line.order_id.dealflow_commercial_revision != line.order_id.dealflow_approved_revision:
+                        line.order_id._invalidate_approval("Commercial modification invalidated previous approval.")
                 line.order_id._evaluate_approval_trigger()
                 self.env['dealflow.anomaly'].detect_anomalies(line.order_id)
         return lines
@@ -172,8 +173,9 @@ class SaleOrderLine(models.Model):
         res = super().write(vals)
         for line in self:
             if line.order_id:
-                if line.order_id.approval_status in ['approved', 'pending'] and line.order_id.dealflow_commercial_revision != line.order_id.dealflow_approved_revision:
-                    line.order_id._invalidate_approval("Commercial modification invalidated previous approval.")
+                if not self.env.context.get('dealflow_applying_negotiation'):
+                    if line.order_id.approval_status in ['approved', 'pending'] and line.order_id.dealflow_commercial_revision != line.order_id.dealflow_approved_revision:
+                        line.order_id._invalidate_approval("Commercial modification invalidated previous approval.")
                 line.order_id._evaluate_approval_trigger()
                 self.env['dealflow.anomaly'].detect_anomalies(line.order_id)
         return res

@@ -18,6 +18,11 @@ class DealFlowApproval(models.Model):
         ('stale', 'Stale / Cancelled')
     ], string='Status', default='draft', required=True, readonly=True, tracking=True)
     
+    negotiation_id = fields.Many2one('dealflow.negotiation', string='Negotiation Request', ondelete='cascade', readonly=True)
+    negotiation_line_ids = fields.One2many(related='negotiation_id.line_ids', string='Proposed Lines', readonly=True)
+    proposed_risk_score = fields.Float(related='negotiation_id.proposed_risk_score', string='Proposed Risk', readonly=True)
+    proposed_risk_level = fields.Selection(related='negotiation_id.proposed_risk_level', string='Proposed Risk Level', readonly=True)
+    
     step_ids = fields.One2many('dealflow.approval.step', 'approval_id', string='Approval Steps')
     
     @api.model_create_multi
@@ -74,8 +79,12 @@ class DealFlowApprovalStep(models.Model):
         if self.status != 'pending' or self.approval_id.status != 'pending':
             return False
         order = self.approval_id.order_id
-        if order and order.dealflow_commercial_revision != order.dealflow_approved_revision:
-            return False
+        if self.approval_id.negotiation_id:
+            if order and order.dealflow_commercial_revision != self.approval_id.negotiation_id.base_commercial_revision:
+                return False
+        else:
+            if order and order.dealflow_commercial_revision != order.dealflow_approved_revision:
+                return False
         if self.company_id and self.company_id.id not in user.company_ids.ids:
             return False
         all_steps = self.approval_id.step_ids.sorted(key=lambda s: (s.sequence, s.id))
@@ -123,7 +132,19 @@ class DealFlowApprovalStep(models.Model):
         all_steps = self.approval_id.step_ids
         if all(step.status == 'approved' for step in all_steps):
             self.approval_id.write({'status': 'approved'})
-            self.approval_id.order_id.write({'approval_status': 'approved'})
+            
+            if self.approval_id.negotiation_id:
+                self.approval_id.order_id.with_context(dealflow_applying_negotiation=True).write({
+                    'approval_status': 'approved',
+                    'dealflow_approved_revision': self.approval_id.order_id.dealflow_commercial_revision
+                })
+            else:
+                self.approval_id.order_id.write({'approval_status': 'approved'})
+            
+            # Automatically accept linked negotiation if one exists
+            if self.approval_id.negotiation_id and self.approval_id.negotiation_id.state in ['submitted', 'under_review']:
+                self.approval_id.negotiation_id.sudo().with_context(auto_accept=True).action_accept()
+                
             self.env['dealflow.approval.log'].sudo().create({
                 'order_id': self.approval_id.order_id.id,
                 'user_id': self.env.user.id,
@@ -158,6 +179,10 @@ class DealFlowApprovalStep(models.Model):
         
         self.approval_id.write({'status': 'rejected'})
         self.approval_id.order_id.write({'approval_status': 'rejected'})
+        
+        # Automatically reject linked negotiation if one exists
+        if self.approval_id.negotiation_id and self.approval_id.negotiation_id.state in ['submitted', 'under_review']:
+            self.approval_id.negotiation_id.sudo().action_reject(reason=f"Approval Rejected: {reason}")
         
         self.env['dealflow.approval.log'].sudo().create({
             'order_id': self.approval_id.order_id.id,

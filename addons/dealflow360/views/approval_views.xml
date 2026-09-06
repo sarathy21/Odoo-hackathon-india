@@ -20,6 +20,29 @@
                             <field name="order_id" string="Quotation"/>
                             <field name="company_id" groups="base.group_multi_company" invisible="1"/>
                         </group>
+                        <group string="Customer Negotiation" invisible="not negotiation_id">
+                            <field name="negotiation_id" string="Negotiation Request"/>
+                            <field name="proposed_risk_level" widget="badge" decoration-danger="proposed_risk_level == 'high'" decoration-warning="proposed_risk_level == 'medium'" decoration-success="proposed_risk_level == 'low'"/>
+                            <field name="proposed_risk_score" widget="progressbar"/>
+                        </group>
+                    </group>
+                    <notebook invisible="not negotiation_id">
+                        <page string="Proposed Commercial Terms">
+                            <field name="negotiation_line_ids">
+                                <list>
+                                    <field name="product_id"/>
+                                    <field name="current_quantity" string="Curr Qty"/>
+                                    <field name="requested_quantity" string="Req Qty"/>
+                                    <field name="current_unit_price" string="Curr Price"/>
+                                    <field name="requested_unit_price" string="Req Price"/>
+                                    <field name="current_discount" string="Curr Disc (%)"/>
+                                    <field name="requested_discount" string="Req Disc (%)"/>
+                                    <field name="change_type" widget="badge" decoration-info="1"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                    <group>
                         <group string="Approval Steps">
                             <field name="step_ids" nolabel="1" readonly="1">
                                 <list decoration-success="status=='approved'" decoration-danger="status=='rejected'" decoration-warning="status=='pending'">
@@ -41,6 +64,7 @@
         <field name="arch" type="xml">
             <list create="0" decoration-success="status=='approved'" decoration-danger="status=='rejected'" decoration-warning="status=='pending'" decoration-muted="status=='stale'">
                 <field name="order_id" string="Quotation"/>
+                <field name="negotiation_id" widget="badge" decoration-info="negotiation_id != False" string="Negotiation"/>
                 <field name="status" widget="badge" decoration-success="status=='approved'" decoration-warning="status=='pending'" decoration-danger="status=='rejected'"/>
             </list>
         </field>
