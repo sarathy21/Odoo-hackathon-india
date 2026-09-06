@@ -10,9 +10,9 @@
     'license': 'LGPL-3',
     'depends': ['base', 'product', 'sale', 'sale_stock', 'stock'],
     'data': [
+        'security/security.xml',
         'security/ir.model.access.csv',
         'security/ir_rule.xml',
-        'security/security.xml',
         'data/dealflow360_data.xml',
         'views/discount_rule_views.xml',
         'views/customer_tier_views.xml',
